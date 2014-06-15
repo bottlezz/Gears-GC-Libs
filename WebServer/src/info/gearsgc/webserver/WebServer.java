@@ -74,9 +74,7 @@ public class WebServer extends NanoHTTPD {
 
 
     }
-    public static void main(String[] args) {
-        ServerRunner.run(WebServer.class);
-    }
+    
     @Override public Response serve(IHTTPSession session) {
         Map<String, List<String>> decodedQueryParameters =
                 decodeParameters(session.getQueryParameterString());
@@ -120,8 +118,8 @@ public class WebServer extends NanoHTTPD {
             data = assetManager.open(session.getUri().substring(1));
         }catch (IOException e){
             e.printStackTrace();
-            data = null;
-            return new Response(Response.Status.OK,mimeType,data);
+            //data = null;
+            //return new Response(Response.Status.OK,mimeType,data);
         }
 
         if (mimeType== MIME_DEFAULT_BINARY ){
