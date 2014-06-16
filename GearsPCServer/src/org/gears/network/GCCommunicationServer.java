@@ -90,6 +90,7 @@ public class GCCommunicationServer extends WebSocketServer {
 		//TODO
 		//when user leave the game, i.e. close connection
 		//what to do
+		removeUser(arg0);
 	}
 
 	@Override
@@ -108,6 +109,12 @@ public class GCCommunicationServer extends WebSocketServer {
 //		obj1.setTimestamp("bla");
 //		obj1.setVariables("testVar");
 //		this.broadcast(sourceSocket, obj1.getJson(), false);
+		
+//		this.removeUser(sourceSocket);
+//		this.addUser(sourceSocket, data);
+//		this.removeUser(sourceSocket);
+//		if(true)
+//			return;
 		
 		DataObject obj = new DataObject();
 		obj.parseJson(data);
@@ -373,6 +380,32 @@ public class GCCommunicationServer extends WebSocketServer {
 //		}
 //	}
 	
+	private void removeUser(WebSocket sourceSocket){
+		String body = "";
+		if(gcLists.containsKey("USERS") && gcLists.containsKey("USERSOCKETS")){
+			ArrayList<String> users = gcLists.get("USERS");
+			ArrayList<String> userSockets = gcLists.get("USERSOCKETS");
+			
+			int index = userSockets.indexOf(sourceSocket.toString());
+			
+			body = users.get(index);
+			
+			users.remove(index);
+			userSockets.remove(index);
+		}
+		
+		DataObject objBack = new DataObject();
+		objBack.setBody(body);
+		objBack.setAction("REMOVE_USER");
+		objBack.setVariables(sourceSocket.toString());
+		SimpleDateFormat f = new SimpleDateFormat("yyyy-MMM-dd HH:mm:ss");
+		f.setTimeZone(TimeZone.getTimeZone("UTC"));
+		String timestamp = f.format(new Date());
+		objBack.setTimestamp(timestamp);
+		
+		this.broadcast(sourceSocket, objBack.getJson(), false);
+	}
+	
 	private void addUser(WebSocket sourceSocket, String data)
 	{
 		ArrayList<String> users;
@@ -388,6 +421,16 @@ public class GCCommunicationServer extends WebSocketServer {
 		users.add(obj.getBody());
 		gcLists.put("USERS", users);
 		
+		ArrayList<String> userSockets;
+		if (this.gcLists.containsKey("USERSOCKETS")){
+			userSockets = gcLists.get("USERSOCKETS");
+		}
+		else{
+			userSockets = new ArrayList<String>();
+		}
+		userSockets.add(sourceSocket.toString());
+		gcLists.put("USERSOCKETS", userSockets);
+		
 		
 //		if (!this.userList.containsKey(sourceSocket))
 //		{
@@ -400,7 +443,9 @@ public class GCCommunicationServer extends WebSocketServer {
 		// TODO
 		// may need change
 		//this.updateHost();
-		sendGcListByKey(sourceSocket, "USERS");
+		obj.setVariables(sourceSocket.toString());
+		data = obj.getJson();
+		this.broadcast(sourceSocket, data, false);
 	}
 	
 //	private void updateHost()
