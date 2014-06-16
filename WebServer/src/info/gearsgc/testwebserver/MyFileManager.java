@@ -34,9 +34,6 @@ public class MyFileManager implements GcFileManager{
 	    } catch (FileNotFoundException e) {
 	        // TODO Auto-generated catch block
 	        e.printStackTrace();
-	    } catch (IOException e) {
-	        // TODO Auto-generated catch block
-	        e.printStackTrace();
 	    }
 	    System.out.println(fileName);
 	    return is;
@@ -47,6 +44,11 @@ public class MyFileManager implements GcFileManager{
 	public InputStream open(String fileName, int accessMode) throws IOException {
 		// TODO Auto-generated method stub
 		return null;
+	}
+	@Override
+	public String GetUploadPath() {
+		// TODO Auto-generated method stub
+		return localFolder+"/";
 	}
 	
 }

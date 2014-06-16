@@ -2,7 +2,6 @@ package info.gearsgc.webserver;
 
 
 import fi.iki.elonen.NanoHTTPD;
-import fi.iki.elonen.ServerRunner;
 import fi.iki.elonen.WebServerPlugin;
 
 import java.io.IOException;
@@ -62,7 +61,7 @@ public class WebServer extends NanoHTTPD {
     private static Map<String, WebServerPlugin> mimeTypeHandlers = new HashMap<String, WebServerPlugin>();
     //private final List<File> rootDirs;
     //private final boolean quiet=false;
-    private  GcFileManager assetManager;
+    protected static  GcFileManager assetManager;
     public WebServer(){
 
         super(8080);
@@ -71,7 +70,7 @@ public class WebServer extends NanoHTTPD {
     public WebServer(int port,GcFileManager fileMan){
         super(port);
         assetManager=fileMan;
-
+        this.setTempFileManagerFactory(new GcFileManagerFactory());
 
     }
     
@@ -160,4 +159,52 @@ public class WebServer extends NanoHTTPD {
         sb.append("<li><code><b>").append(entry.getKey()).
                 append("</b> = ").append(entry.getValue()).append("</code></li>");
     }
+    
+    private static class GcFileManagerFactory implements TempFileManagerFactory {
+        @Override
+        public TempFileManager create() {
+            return new GcUploadFileManager();
+        }
+        
+       
+    }
+
+    private static class GcUploadFileManager implements TempFileManager {
+        private final String fileDir;
+       
+        private final List<TempFile> tempFiles;
+        /*
+        private GcUploadFileManager() {
+        	
+        }*/
+        private GcUploadFileManager(){
+        	
+        	fileDir=assetManager.GetUploadPath();
+            tempFiles = new ArrayList<TempFile>();
+        }
+
+        @Override
+        public TempFile createTempFile() throws Exception {
+            DefaultTempFile tempFile = new DefaultTempFile(fileDir);
+            tempFiles.add(tempFile);
+            System.out.println("Created tempFile: " + tempFile.getName());
+            return tempFile;
+        }
+
+        @Override
+        public void clear() {
+        	
+            if (!tempFiles.isEmpty()) {
+                System.out.println("Cleaning up:");
+            }
+            for (TempFile file : tempFiles) {
+                try {
+                    System.out.println("   "+file.getName());
+                    file.delete();
+                } catch (Exception ignored) {}
+            }
+            tempFiles.clear();
+        }
+    }
+
 }
