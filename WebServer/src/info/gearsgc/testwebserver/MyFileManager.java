@@ -1,5 +1,6 @@
 package info.gearsgc.testwebserver;
 
+import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -46,9 +47,16 @@ public class MyFileManager implements GcFileManager{
 		return null;
 	}
 	@Override
-	public String GetUploadPath() {
+	public String getUploadPath() {
 		// TODO Auto-generated method stub
 		return localFolder+"/";
+	}
+	@Override
+	public void createDirectory(String subPath,String name) {
+		// TODO Auto-generated method stub
+		String path=localFolder+"/"+subPath+name;
+		new File(path).mkdir();
+		return;
 	}
 	
 }

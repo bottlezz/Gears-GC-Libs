@@ -1127,6 +1127,7 @@ public abstract class NanoHTTPD {
                         }
                         String pname = disposition.get("name");
                         pname = pname.substring(1, pname.length() - 1);
+                        System.out.println("pname is "+pname);
 
                         String value = "";
                         if (item.get("content-type") == null) {
@@ -1146,7 +1147,17 @@ public abstract class NanoHTTPD {
                                 throw new ResponseException(Response.Status.INTERNAL_ERROR, "Error processing request");
                             }
                             int offset = stripMultipartHeaders(fbuf, bpositions[boundarycount - 2]);
-                            String path = saveTmpFile(fbuf, offset, bpositions[boundarycount - 1] - offset - 4);
+                           
+                            String rootPath="public/";
+                            String targetPath=parms.get("targetpath");
+                            String dirPath=rootPath+targetPath;
+                            //String dirPath=rootPath;
+                            String curFileName=disposition.get("filename");
+                            
+                            curFileName=curFileName.substring(1, curFileName.length() - 1);
+                            String curFilePath = dirPath+curFileName;
+                            System.out.println(curFilePath);
+                            String path = saveUploadFile(fbuf, offset, bpositions[boundarycount - 1] - offset - 4,curFilePath);
                             files.put(pname, path);
                             value = disposition.get("filename");
                             value = value.substring(1, value.length() - 1);
@@ -1229,6 +1240,28 @@ public abstract class NanoHTTPD {
             }
             return path;
         }
+        private String saveUploadFile(ByteBuffer b, int offset, int len,String filePath) {
+            if (len > 0) {
+                FileOutputStream fileOutputStream = null;
+                try {
+                  
+                    ByteBuffer src = b.duplicate();
+                    fileOutputStream = new FileOutputStream(filePath);
+                    FileChannel dest = fileOutputStream.getChannel();
+                    src.position(offset).limit(offset + len);
+                    dest.write(src.slice());
+                    
+                  
+                } catch (Exception e) { // Catch exception if any
+                    throw new Error(e); // we won't recover, so throw an error
+                } finally {
+                    safeClose(fileOutputStream);
+                }
+            }
+            return filePath;
+        }
+        	
+        
 
         private RandomAccessFile getTmpBucket() {
             try {

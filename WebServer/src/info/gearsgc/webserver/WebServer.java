@@ -4,6 +4,7 @@ package info.gearsgc.webserver;
 import fi.iki.elonen.NanoHTTPD;
 import fi.iki.elonen.WebServerPlugin;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.HashMap;
@@ -58,10 +59,11 @@ public class WebServer extends NanoHTTPD {
         put("class", "application/octet-stream");
     }};
 
-    private static Map<String, WebServerPlugin> mimeTypeHandlers = new HashMap<String, WebServerPlugin>();
+    //private static Map<String, WebServerPlugin> mimeTypeHandlers = new HashMap<String, WebServerPlugin>();
     //private final List<File> rootDirs;
     //private final boolean quiet=false;
-    protected static  GcFileManager assetManager;
+    protected static GcFileManager publicFileManager;
+    protected static GcAssetManager assetManager;
     public WebServer(){
 
         super(8080);
@@ -69,7 +71,7 @@ public class WebServer extends NanoHTTPD {
     }
     public WebServer(int port,GcFileManager fileMan){
         super(port);
-        assetManager=fileMan;
+        publicFileManager=fileMan;
         this.setTempFileManagerFactory(new GcFileManagerFactory());
 
     }
@@ -112,9 +114,27 @@ public class WebServer extends NanoHTTPD {
         sb.append("</html>");
         String mimeType=getMimeTypeForFile(session.getUri());
         InputStream data=null;
-         
+        if(session.getUri()=="GcFileManager"||session.getUri()=="GcFileManager/"){
+        	System.out.println("file manager");
+        	try{
+                data = publicFileManager.open(session.getUri().substring(1));
+            }catch (IOException e){
+                e.printStackTrace();
+                //data = null;
+                //return new Response(Response.Status.OK,mimeType,data);
+            }
+        	if (mimeType== MIME_DEFAULT_BINARY ){
+                return new Response(sb.toString());
+            }else {
+                
+            	return new Response(Response.Status.OK,mimeType,data);
+                
+            }
+        	
+        }
+        
         try{
-            data = assetManager.open(session.getUri().substring(1));
+            data = publicFileManager.open(session.getUri().substring(1));
         }catch (IOException e){
             e.printStackTrace();
             //data = null;
@@ -124,7 +144,9 @@ public class WebServer extends NanoHTTPD {
         if (mimeType== MIME_DEFAULT_BINARY ){
             return new Response(sb.toString());
         }else {
-            return new Response(Response.Status.OK,mimeType,data);
+            
+        	return new Response(Response.Status.OK,mimeType,data);
+            
         }
 
         //
@@ -179,7 +201,7 @@ public class WebServer extends NanoHTTPD {
         }*/
         private GcUploadFileManager(){
         	
-        	fileDir=assetManager.GetUploadPath();
+        	fileDir=publicFileManager.getUploadPath();
             tempFiles = new ArrayList<TempFile>();
         }
 
@@ -190,6 +212,7 @@ public class WebServer extends NanoHTTPD {
             System.out.println("Created tempFile: " + tempFile.getName());
             return tempFile;
         }
+        
 
         @Override
         public void clear() {
