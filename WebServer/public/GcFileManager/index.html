@@ -8,17 +8,18 @@
 <body>
 <div id="path">
 	<p>
-		<button class="btn-link" onclick="navigateTo(%2f)">Root</button><span>/<span>
+		<button class="btn-link" onclick="navigateTo('/')">Root</button><span>/<span>
 	</p>
 </div>
 <div id="dirView">
 
 	<div id="addDir">
-		<button class="btn-addDir">Add Folder</button>
+		<button class="btn-addDir" onclick="showAddDirForm">Add Folder</button>
+		<form></form>
 	</div>
 	<div id="addFile">
 		<button class="btn-addFile">Add File</button>
-		<form id="uploadFile" action="gcFileMan/upload" hidden onsubmit="submitForm(this);return false;" enctype="multipart/form-data" method="post">
+		<form id="form-addFile" action="gcFileMan/upload" hidden onsubmit="submitForm(this);return false;" enctype="multipart/form-data" method="post">
 			<p>
 				<input type="hidden" name="targetpath" value="test/"> 
 				<input type="file" name="datafile" size="40">
