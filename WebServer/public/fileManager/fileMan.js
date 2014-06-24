@@ -1,5 +1,5 @@
 var currentPath="%2f";
-function submitForm(oFormElement)
+function submitFieUploadForm(oFormElement)
 {
 	var xhr = new XMLHttpRequest();
 	xhr.onreadystatechange = function(){
