@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>GC File Manager</title>
+<script type="text/javascript" src="fileMan.js"></script>
+<link rel="stylesheet" type="text/css" href="style.css">
+</head>
+<body>
+<div id="path">
+	<p>
+		<button class="btn-link" onclick="navigateTo('/')">Root</button><span>/<span>
+	</p>
+</div>
+<div id="dirView">
+
+	<div id="addDir">
+		<button class="btn-addDir" onclick="showAddDirForm">Add Folder</button>
+		<form></form>
+	</div>
+	<div id="addFile">
+		<button class="btn-addFile">Add File</button>
+		<form id="form-addFile" action="gcFileMan/upload" hidden onsubmit="submitForm(this);return false;" enctype="multipart/form-data" method="post">
+			<p>
+				<input type="hidden" name="targetpath" value="test/"> 
+				<input type="file" name="datafile" size="40">
+				<input type="submit" value ="upload"> 
+			</p>
+		</form>
+	</div>
+	<table id="content">
+	</table>
+</div>
+
+
+
+</body>
+
+</html>

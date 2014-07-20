@@ -37,8 +37,7 @@ import org.java_websocket.server.WebSocketServer;
  * {"action":"create_list", "variables":{"key":"MyList", "autoSync":"true"}, "timestamp":"null", "body":""}
  * 
  * get_list
- * *not done yet ;p
- * {"action":"get_list", "variables":{"key":"MyList", "autoSync":"true"}, "timestamp":"null", "body":""}
+ * {"action":"get_list", "variables":{"key":"MyList", "separator":"#"}, "timestamp":"null", "body":""}
  * 
  * append_list_item
  * {"action":"append_list_item", "variables":{"key":"MyList", "autoSync":"true"}, "timestamp":"null", "body":"test1"}
@@ -50,9 +49,14 @@ import org.java_websocket.server.WebSocketServer;
  * remove_list_item
  * {"action":"remove_list_item", "variables":{"key":"MyList", "autoSync":"true"}, "timestamp":"null", "body":"test1"}
  * 
- * removeListItemByIndex
- * {"action":"remove_list_item_by_index", "variables":{"key":"MyList", "autoSync":"true"}, "timestamp":"null", "body":"0"}
+ * remove_list_item_by_index
+ * {"action":"remove_list_item_by_index", "variables":{"key":"MyList", "autoSync":"true", "index":"0"}, "timestamp":"null", "body":"0"}
  * 
+ * replace_list_item_by_index
+ * {"action":"replace_list_item_by_index", "variables":{"key":"MyList", "autoSync":"true", "index":"0"}, "timestamp":"null", "body":"Test"}
+ * 
+ * add_list_item
+ * {"action":"add_list_item", "variables":{"key":"MyList", "autoSync":"true", "index":"0"}, "timestamp":"null", "body":"AddTest"}
  */
 
 public class GCCommunicationServer extends WebSocketServer {
@@ -160,6 +164,40 @@ public class GCCommunicationServer extends WebSocketServer {
 		else if (obj.getAction().equals("remove_list_item_by_index")){
 			this.removeListItemByIndex(sourceSocket, data);
 		}
+		else if (obj.getAction().equals("replace_list_item_by_index")){
+			this.replaceListItemByIndex(sourceSocket, data);
+		}
+		else if (obj.getAction().equals("add_list_item")){
+			this.addListItem(sourceSocket, data);
+		}
+	}
+	
+	public void addListItem(WebSocket sourceSocket, String data){
+		DataObject obj = new DataObject();
+		obj.parseJson(data);
+		String key = obj.getVariableKey();
+		String body = obj.getBody();
+		int index = Integer.parseInt(obj.getVariableIndex());
+		
+		gcLists.get(key).add(index, body);
+		
+		if(obj.getVariableAutoSync().equals("true")){
+			this.broadcast(sourceSocket, data, false);
+		}
+	}
+	
+	public void replaceListItemByIndex(WebSocket sourceSocket, String data){
+		DataObject obj = new DataObject();
+		obj.parseJson(data);
+		String key = obj.getVariableKey();
+		String body = obj.getBody();
+		int index = Integer.parseInt(obj.getVariableIndex());
+		
+		gcLists.get(key).set(index, body);
+		
+		if(obj.getVariableAutoSync().equals("true")){
+			this.broadcast(sourceSocket, data, false);
+		}
 	}
 	
 	public void removeListItemByIndex(WebSocket sourceSocket, String data){
@@ -167,7 +205,7 @@ public class GCCommunicationServer extends WebSocketServer {
 		obj.parseJson(data);
 		String key = obj.getVariableKey();
 		String body = obj.getBody();
-		int index = Integer.parseInt(body);
+		int index = Integer.parseInt(obj.getVariableIndex());
 		
 		gcLists.get(key).remove(index);
 		
@@ -232,8 +270,18 @@ public class GCCommunicationServer extends WebSocketServer {
 		return value;
 	}
 	
-	private String arrayToJson(ArrayList<String> value){
-		String body = value.toString();
+	private String arrayToJson(ArrayList<String> value, String separator){
+		String body;
+		if(value.size()>0){
+			body = value.get(0);
+			for (int i=1; i<value.size(); i++){
+				body += separator;
+				body += value.get(i);
+			}
+		}
+		else{
+			body = "";
+		}
 		return body;
 	}
 	
@@ -241,8 +289,9 @@ public class GCCommunicationServer extends WebSocketServer {
 		DataObject obj = new DataObject();
 		obj.parseJson(data);
 		
+		String separator = obj.getVariableSeparator();
 		String key = obj.getVariableKey();
-		sendGcListByKey(sourceSocket, key);
+		sendGcListByKey(sourceSocket, key, separator);
 	}
 	
 	public void sendGcListItem(WebSocket sourceSocket, String data){
@@ -271,18 +320,19 @@ public class GCCommunicationServer extends WebSocketServer {
 		this.broadcast(sourceSocket, objBack.getJson(), false);
 	}
 	
-	private void sendGcListByKey(WebSocket sourceSocket, String key){
+	private void sendGcListByKey(WebSocket sourceSocket, String key, String separator){
 		ArrayList<String> value = null;
 		if(gcLists.containsKey(key)){
 			value = gcLists.get(key);
 		}
 		
-		String body = arrayToJson(value);
+		String body = arrayToJson(value, separator);
 		
 		DataObject objBack = new DataObject();
 		objBack.setBody(body);
-		objBack.setAction("SYNC");
-		objBack.setVariables(key);
+		objBack.setAction("SYNC_LIST");
+		String variables = "{\"key\":\""+key+"\",\"separator\":\""+separator+"\"}";
+		objBack.setVariables(variables);
 		SimpleDateFormat f = new SimpleDateFormat("yyyy-MMM-dd HH:mm:ss");
 		f.setTimeZone(TimeZone.getTimeZone("UTC"));
 		String timestamp = f.format(new Date());
@@ -443,9 +493,8 @@ public class GCCommunicationServer extends WebSocketServer {
 		// TODO
 		// may need change
 		//this.updateHost();
-		obj.setVariables(sourceSocket.toString());
-		data = obj.getJson();
-		this.broadcast(sourceSocket, data, false);
+		sendGcListByKey(sourceSocket, "USERS", "#SYSTEM#");
+		sendGcListByKey(sourceSocket, "USERSOCKETS", "#SYSTEM#");
 	}
 	
 //	private void updateHost()

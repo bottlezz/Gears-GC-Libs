@@ -58,6 +58,16 @@ public class DataObject
 		return json.get("autoSync").isJsonNull() ? null : json.get("autoSync").getAsString();
 	}
 	
+	public String getVariableSeparator(){
+		JsonObject json = getVariablesAsJson();
+		return json.get("separator").isJsonNull() ? null : json.get("separator").getAsString();
+	}
+	
+	public String getVariableIndex(){
+		JsonObject json = getVariablesAsJson();
+		return json.get("index").isJsonNull() ? null : json.get("index").getAsString();
+	}
+	
 //	public int getUserID() 
 //	{
 //		return userID;
