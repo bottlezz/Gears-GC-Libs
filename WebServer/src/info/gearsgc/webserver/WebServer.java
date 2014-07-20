@@ -75,68 +75,72 @@ public class WebServer extends NanoHTTPD {
         this.setTempFileManagerFactory(new GcFileManagerFactory());
 
     }
-    
+    public StringBuilder ShowRequestInfo(IHTTPSession session){
+    	  Map<String, List<String>> decodedQueryParameters =
+                  decodeParameters(session.getQueryParameterString());
+
+          StringBuilder sb = new StringBuilder();
+          sb.append("<html>");
+          sb.append("<head><title>Debug Server</title></head>");
+          sb.append("<body>");
+          sb.append("<h1>Debug Server</h1>");
+
+          sb.append("<p><blockquote><b>URI</b> = ").append(
+                  String.valueOf(session.getUri())).append("<br />");
+
+          sb.append("<b>Method</b> = ").append(
+                  String.valueOf(session.getMethod())).append("</blockquote></p>");
+
+          sb.append("<h3>Headers</h3><p><blockquote>").
+                  append(toString(session.getHeaders())).append("</blockquote></p>");
+
+          sb.append("<h3>Parms</h3><p><blockquote>").
+                  append(toString(session.getParms())).append("</blockquote></p>");
+
+          sb.append("<h3>Parms (multi values?)</h3><p><blockquote>").
+                  append(toString(decodedQueryParameters)).append("</blockquote></p>");
+
+          try {
+              Map<String, String> files = new HashMap<String, String>();
+              session.parseBody(files);
+              sb.append("<h3>Files</h3><p><blockquote>").
+                      append(toString(files)).append("</blockquote></p>");
+          } catch (Exception e) {
+              e.printStackTrace();
+          }
+
+          sb.append("</body>");
+          sb.append("</html>");
+          return sb;
+    }
     @Override public Response serve(IHTTPSession session) {
         Map<String, List<String>> decodedQueryParameters =
                 decodeParameters(session.getQueryParameterString());
 
-        StringBuilder sb = new StringBuilder();
-        sb.append("<html>");
-        sb.append("<head><title>Debug Server</title></head>");
-        sb.append("<body>");
-        sb.append("<h1>Debug Server</h1>");
-
-        sb.append("<p><blockquote><b>URI</b> = ").append(
-                String.valueOf(session.getUri())).append("<br />");
-
-        sb.append("<b>Method</b> = ").append(
-                String.valueOf(session.getMethod())).append("</blockquote></p>");
-
-        sb.append("<h3>Headers</h3><p><blockquote>").
-                append(toString(session.getHeaders())).append("</blockquote></p>");
-
-        sb.append("<h3>Parms</h3><p><blockquote>").
-                append(toString(session.getParms())).append("</blockquote></p>");
-
-        sb.append("<h3>Parms (multi values?)</h3><p><blockquote>").
-                append(toString(decodedQueryParameters)).append("</blockquote></p>");
-
-        try {
-            Map<String, String> files = new HashMap<String, String>();
-            session.parseBody(files);
-            sb.append("<h3>Files</h3><p><blockquote>").
-                    append(toString(files)).append("</blockquote></p>");
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-
-        sb.append("</body>");
-        sb.append("</html>");
+        StringBuilder sb = ShowRequestInfo(session);
+       
         String mimeType=getMimeTypeForFile(session.getUri());
         InputStream data=null;
-        if(session.getUri()=="GcFileManager"||session.getUri()=="GcFileManager/"){
-        	System.out.println("file manager");
-        	try{
-                data = publicFileManager.open(session.getUri().substring(1));
-            }catch (IOException e){
-                e.printStackTrace();
-                //data = null;
-                //return new Response(Response.Status.OK,mimeType,data);
-            }
-        	if (mimeType== MIME_DEFAULT_BINARY ){
-                return new Response(sb.toString());
-            }else {
-                
-            	return new Response(Response.Status.OK,mimeType,data);
-                
-            }
-        	
+
+        
+        if(session.getUri().equalsIgnoreCase("/GcFileMan/CreateDir")){
+        	System.out.println(" -----> file manager-> create folder");
+       
+
+        	return new Response(Response.Status.OK,"application/json","{data:[{filename:str,type:'f'},{filename:str,type:'d'}]}");
+        }
+        if(session.getUri().equalsIgnoreCase("/GcFileMan/GetDir")){
+        	return new Response(Response.Status.OK,"application/json","{data:[{filename:str,type:'f'},{filename:str,type:'d'}]}");
+        }
+
+        if(session.getUri().equalsIgnoreCase("/GcFileMan/DeleteFile")){
+        	return new Response(Response.Status.OK,"application/json","{data:[{filename:str,type:'f'},{filename:str,type:'d'}]}");
         }
         
         try{
             data = publicFileManager.open(session.getUri().substring(1));
         }catch (IOException e){
-            e.printStackTrace();
+            //e.printStackTrace();
             //data = null;
             //return new Response(Response.Status.OK,mimeType,data);
         }

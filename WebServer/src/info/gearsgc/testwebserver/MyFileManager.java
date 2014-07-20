@@ -52,11 +52,21 @@ public class MyFileManager implements GcFileManager{
 		return localFolder+"/";
 	}
 	@Override
-	public void createDirectory(String subPath,String name) {
+	public boolean CreateDir(String subPath,String name) {
 		// TODO Auto-generated method stub
 		String path=localFolder+"/"+subPath+name;
 		new File(path).mkdir();
-		return;
+		return false;
 	}
+
+	public boolean GetDir(String Path){
+		return false;
+	}
+	
+	public boolean DeleteFile(String Path){
+		return false;
+	}
+	
+	
 	
 }

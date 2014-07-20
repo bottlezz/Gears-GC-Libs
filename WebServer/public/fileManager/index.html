@@ -3,24 +3,43 @@
 <head>
 <title>GC File Manager</title>
 <script type="text/javascript" src="fileMan.js"></script>
+<script type="text/javascript" src="jquery-2.1.1.min.js"></script>
 </head>
 <body>
-<div id="path">
-	<p>
-		<button class="btn-link" onclick="navigateTo(%2f)">Root</button><span>/<span>
-	</p>
+<div id="contentMain">
+	<div id="pathDiv">
+		
+			<span><button class="btn-link" onclick="navigateTo(0)">Root</button>/</span>
+
+			<span><button class="btn-link" onclick="navigateTo(1)">Root</button>/</span>
+			
+			<span><button class="btn-link" onclick="navigateTo(2)">Root</button>/</span>
+
+			<span><button class="btn-link" onclick="navigateTo(3)">Root</button>/</span>
+
+			<span><button class="btn-link" onclick="navigateTo(4)">Root</button>/</span>			
+	</div>
+	<div id="dirView">
+		<form id="uploadFile" action="GcFileMan/upload"  onsubmit="submitFileUploadForm(this);return false;" enctype="multipart/form-data" method="post">
+			<p>
+				<input type="hidden" name="targetpath" value="test/abc/"> 
+				<input type="file" name="datafile" size="40">
+				<input type="submit" value ="upload"> 
+			</p>
+		</form>
+		<br/>
+		<button onclick="createDirButtonClick()">Create Folder</button>
+		<table id="content">
+		</table>
+	</div>
 </div>
-<div id="dirView">
-	<form id="uploadFile" action="gcFileMan/upload"  onsubmit="submitForm(this);return false;" enctype="multipart/form-data" method="post">
-		<p>
-			<input type="hidden" name="targetpath" value="test/"> 
-			<input type="file" name="datafile" size="40">
-			<input type="submit" value ="upload"> 
-		</p>
-	</form>
-	<table id="content">
-	</table>
+<div id="dirNameInput" hidden>
+
+	<input id="dirNameInputBox" type="text"></input>
+	<button onclick="createDirSubmit()">Submit</button>
+	<button onclick="createDirCancel()">Cancel</button>
 </div>
+
 </body>
 
 </html>

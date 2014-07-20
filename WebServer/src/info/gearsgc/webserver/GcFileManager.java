@@ -8,6 +8,10 @@ public interface GcFileManager {
 	
 	public java.io.InputStream open(java.lang.String fileName, int accessMode) throws java.io.IOException;
 	
-	public void createDirectory(String subPath,String name);
+	public boolean CreateDir(String subPath,String name);
+	
+	public boolean GetDir(String Path);
+	
+	public boolean DeleteFile(String Path);
 	
 }
