@@ -94,6 +94,7 @@ public class GCCommunicationServer extends WebSocketServer {
 		//TODO
 		//when user leave the game, i.e. close connection
 		//what to do
+		
 		removeUser(arg0);
 	}
 
@@ -346,6 +347,8 @@ public class GCCommunicationServer extends WebSocketServer {
 		
 		String key = obj.getVariableKey();
 		
+		if(gcLists.containsKey(key))
+			return;
 		gcLists.put(key, new ArrayList<String>());
 		
 		//TODO
@@ -444,6 +447,7 @@ public class GCCommunicationServer extends WebSocketServer {
 			userSockets.remove(index);
 		}
 		
+		//OPTION1
 		DataObject objBack = new DataObject();
 		objBack.setBody(body);
 		objBack.setAction("REMOVE_USER");
@@ -454,6 +458,11 @@ public class GCCommunicationServer extends WebSocketServer {
 		objBack.setTimestamp(timestamp);
 		
 		this.broadcast(sourceSocket, objBack.getJson(), false);
+		
+		
+		//OPTION2
+		//sendGcListByKey(arg0, "USERS", "#SYSTEM#");
+		//sendGcListByKey(arg0, "USERSOCKETS", "#SYSTEM#");
 	}
 	
 	private void addUser(WebSocket sourceSocket, String data)
@@ -466,11 +475,6 @@ public class GCCommunicationServer extends WebSocketServer {
 			users = new ArrayList<String>();
 		}
 		
-		DataObject obj = new DataObject();
-		obj.parseJson(data);
-		users.add(obj.getBody());
-		gcLists.put("USERS", users);
-		
 		ArrayList<String> userSockets;
 		if (this.gcLists.containsKey("USERSOCKETS")){
 			userSockets = gcLists.get("USERSOCKETS");
@@ -478,8 +482,24 @@ public class GCCommunicationServer extends WebSocketServer {
 		else{
 			userSockets = new ArrayList<String>();
 		}
-		userSockets.add(sourceSocket.toString());
-		gcLists.put("USERSOCKETS", userSockets);
+		
+		if(userSockets.contains(sourceSocket.toString())){
+			int index = userSockets.indexOf(sourceSocket.toString()); //update
+			DataObject obj = new DataObject();
+			obj.parseJson(data);
+			users.set(index, obj.getBody());
+			gcLists.put("USERS", users);
+		}
+		else{
+			// add new
+			DataObject obj = new DataObject();
+			obj.parseJson(data);
+			users.add(obj.getBody());
+			gcLists.put("USERS", users);
+			
+			userSockets.add(sourceSocket.toString());
+			gcLists.put("USERSOCKETS", userSockets);
+		}
 		
 		
 //		if (!this.userList.containsKey(sourceSocket))
