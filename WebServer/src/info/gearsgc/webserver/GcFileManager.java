@@ -10,7 +10,7 @@ public interface GcFileManager {
 	
 	public boolean CreateDir(String subPath,String name);
 	
-	public boolean GetDir(String Path);
+	public String GetDir(String Path);
 	
 	public boolean DeleteFile(String Path);
 	

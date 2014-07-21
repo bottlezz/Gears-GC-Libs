@@ -72,7 +72,7 @@ public class WebServer extends NanoHTTPD {
     public WebServer(int port,GcFileManager fileMan){
         super(port);
         publicFileManager=fileMan;
-        this.setTempFileManagerFactory(new GcFileManagerFactory());
+        //this.setTempFileManagerFactory(new defaultTempFileManagerFactory());
 
     }
     public StringBuilder ShowRequestInfo(IHTTPSession session){
@@ -130,7 +130,8 @@ public class WebServer extends NanoHTTPD {
         	return new Response(Response.Status.OK,"application/json","{data:[{filename:str,type:'f'},{filename:str,type:'d'}]}");
         }
         if(session.getUri().equalsIgnoreCase("/GcFileMan/GetDir")){
-        	return new Response(Response.Status.OK,"text/plain","{\"data\":[{\"filename\":\"file\",\"type\":\"f\"},{\"filename\":\"dir\",\"type\":\"d\"}]}");
+        	String rep=publicFileManager.GetDir("public");
+        	return new Response(Response.Status.OK,"text/plain",rep);
         }
 
         if(session.getUri().equalsIgnoreCase("/GcFileMan/DeleteFile")){
