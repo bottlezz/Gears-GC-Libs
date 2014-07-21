@@ -5,6 +5,7 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.*;
 
 import info.gearsgc.webserver.GcFileManager;
 
@@ -59,8 +60,23 @@ public class MyFileManager implements GcFileManager{
 		return false;
 	}
 
-	public boolean GetDir(String Path){
-		return false;
+	public String GetDir(String filePath){
+		List<String> readFiles = new ArrayList<String>();
+		File file = new File(filePath);
+		for ( File fileEntry : file.listFiles()) {
+	        if (fileEntry.isDirectory()) {
+	        	String format = "{\"filename\":\""+ fileEntry.getName() +"\",\"type\":"+"\"d\"}";
+	            readFiles.add(format);
+	        } else {
+	        	String format = "{\"filename\":\""+ fileEntry.getName() +"\",\"type\":"+"\"f\"}";
+	            readFiles.add(format);
+	        }
+    	}
+    	String JSONFile = "{\"data\":[";
+    	for (int i = 0; i < readFiles.size() ; i++ ) { JSONFile += readFiles.get(i); }
+    	JSONFile += "]}";
+
+		return JSONFile;
 	}
 	
 	public boolean DeleteFile(String Path){
