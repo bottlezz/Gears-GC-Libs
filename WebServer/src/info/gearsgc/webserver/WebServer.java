@@ -130,7 +130,7 @@ public class WebServer extends NanoHTTPD {
         	return new Response(Response.Status.OK,"application/json","{data:[{filename:str,type:'f'},{filename:str,type:'d'}]}");
         }
         if(session.getUri().equalsIgnoreCase("/GcFileMan/GetDir")){
-        	return new Response(Response.Status.OK,"application/json","{data:[{filename:str,type:'f'},{filename:str,type:'d'}]}");
+        	return new Response(Response.Status.OK,"text/plain","{\"data\":[{\"filename\":\"file\",\"type\":\"f\"},{\"filename\":\"dir\",\"type\":\"d\"}]}");
         }
 
         if(session.getUri().equalsIgnoreCase("/GcFileMan/DeleteFile")){
