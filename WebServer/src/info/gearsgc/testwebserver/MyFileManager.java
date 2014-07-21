@@ -62,7 +62,8 @@ public class MyFileManager implements GcFileManager{
 
 	public String GetDir(String filePath){
 				String JSONFile = "{\"data\":[";
-		File file = new File(filePath);
+				String path=localFolder+filePath;
+		File file = new File(path);
 		for ( File fileEntry : file.listFiles()) {
 	        if (fileEntry.isDirectory()) {
 	        	String format = "{\"filename\":\""+ fileEntry.getName() +"\",\"type\":"+"\"d\"},";
@@ -74,7 +75,7 @@ public class MyFileManager implements GcFileManager{
     	}
     	JSONFile = JSONFile.substring(0, JSONFile.length()-1); 
     	JSONFile += "]}";
-		System.out.println(JSONFile);
+		return JSONFile;
 	}
 	
 	public boolean DeleteFile(String Path){

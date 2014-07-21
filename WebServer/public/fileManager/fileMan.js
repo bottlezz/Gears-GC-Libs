@@ -2,7 +2,8 @@
 var currentPathArray=[];
 function refreshContent(){
 	var path=getCurrentPath();
-	console.log(path);
+	getDirContent(path);
+
 
 }
 function getDirContent(path){
@@ -70,8 +71,9 @@ function submitFileUploadForm(oFormElement)
 	var xhr = new XMLHttpRequest();
 	xhr.onreadystatechange = function(){
 		if(this.readyState == this.DONE) {
-			alert ("Done");
+			//alert ("Done");
 			oFormElement.reset();
+			refreshContent();
 		}
 	}
 	xhr.open (oFormElement.method, oFormElement.action, true);

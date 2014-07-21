@@ -130,7 +130,9 @@ public class WebServer extends NanoHTTPD {
         	return new Response(Response.Status.OK,"application/json","{data:[{filename:str,type:'f'},{filename:str,type:'d'}]}");
         }
         if(session.getUri().equalsIgnoreCase("/GcFileMan/GetDir")){
-        	String rep=publicFileManager.GetDir("public");
+        	
+        	String path=session.getParms().get("path");
+        	String rep=publicFileManager.GetDir(path);
         	return new Response(Response.Status.OK,"text/plain",rep);
         }
 
