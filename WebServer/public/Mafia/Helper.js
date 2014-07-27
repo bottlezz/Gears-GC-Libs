@@ -48,4 +48,26 @@ function getSelectedListItem(ulid){
 			return items[i];
 		}
 	}
+	return null;
+}
+function CountDownTimer(timeout, callbackFunPerSec, callbackFunWhenStop){
+	//callback function for per second need to allow a parameter to be passed in
+	var time=timeout;
+	this.intervalid =0;
+
+	this.startTimer=function(){
+		 this.intervalid=setInterval(function(){
+			time--;
+			callbackFunPerSec(time);
+			//console.log(time);
+			if(time<=0){
+				clearInterval(this.intervalid);
+				callbackFunWhenStop();
+			}
+
+		},1000);
+		
+	}
+	return this;
+
 }

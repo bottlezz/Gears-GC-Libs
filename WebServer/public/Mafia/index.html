@@ -2,7 +2,7 @@
 	<head>
 		
 		<script type="text/javascript" src="Config.js"></script>
-		<script type="text/javascript" src="gamecenter.js"></script>
+		<script type="text/javascript" src="gamecenter.js"></script>		
 		<script type="text/javascript" src="Helper.js"></script>
 		<script type="text/javascript" src="Game.js"></script>
 		<script type="text/javascript" src="GameData.js"></script>
@@ -23,7 +23,7 @@
 		<div id="stageGameLoad" class="stageContainer">
 
 			<p>waiting for other player to join </p>
-			<button name="startButton" class="menuButton" onclick="startButtonClick()">Start</button>
+			<button name="startButton" class="menuButton" onclick="startButtonClick()" hidden>Start</button>
 			<ul name="gameUserList">
 			</ul>
 
@@ -32,7 +32,7 @@
 		<div id="stageGameIdentity" class="stageContainer">
 			<p>Game starts in <span name="identityTimer">5</span></p>
 			<p>You are </p>
-			<h3>KILLER</h3>
+			<h3 id="userIdentityLabel">NOBODY</h3>
 		</div>
 		<div id="stageGameNight" class="stageContainer">
 			
@@ -46,6 +46,7 @@
 			
 		</div>
 		<div id="stageGameDay" class="stageContainer">
+			
 			<div class="deathBoardContainer">
 				<p>R.I.P</p>
 				<ul id="deathList"></ul>
@@ -53,12 +54,19 @@
 			<div class="voteBoardContiner">
 				<p> Now , who do you think is the killer, vote for the dead</p>
 				<ul id="voteList"></ul>
-				<button id="voteButton" onclick="voteButtonClick">Vote </button>
+				<button name="voteButton" id="voteButton" onclick="voteButtonClick()">Vote </button>
 			</div>
+			
+			
 
 		</div>
 		<div id="stageVoteResult" class="stageContainer">
-			<p><span name="newDead"></span></p>
+			<p>night comes in <span id="voteResultTimer">5</span> second</p>
+			<div id="voteBoard">
+			</div>
+		</div>
+		<div id="YouAreDead" class="stageContainer">
+			<p>YOU ARE DEAD</p>
 		</div>
 		<div id="stageGameOver" class="stageContainer">
 			ddd
@@ -70,7 +78,8 @@
 window.onload=function(){
 	//SET THINGS UP
 	renderStage();
-	generateClientId();
+	clientId = generateClientId();
+	myUser.id=clientId;
 	connect = new GameCenter();
 }
 </script>
