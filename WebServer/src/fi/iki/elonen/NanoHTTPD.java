@@ -1148,9 +1148,10 @@ public abstract class NanoHTTPD {
                             }
                             int offset = stripMultipartHeaders(fbuf, bpositions[boundarycount - 2]);
                            
-                            String rootPath="public/";
+                            String rootPath="public";
                             String targetPath=parms.get("targetpath");
                             String dirPath=rootPath+targetPath;
+                            System.out.println(dirPath);
                             //String dirPath=rootPath;
                             String curFileName=disposition.get("filename");
                             

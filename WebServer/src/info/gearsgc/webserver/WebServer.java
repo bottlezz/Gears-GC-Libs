@@ -125,9 +125,14 @@ public class WebServer extends NanoHTTPD {
         
         if(session.getUri().equalsIgnoreCase("/GcFileMan/CreateDir")){
         	System.out.println(" -----> file manager-> create folder");
-       
+        	Map<String,String> parms=session.getParms();
+        	String path=parms.get("path");
+        	String name=parms.get("name");
+        	System.out.println(name);
+        	publicFileManager.CreateDir(path,name);
+        	return new Response(Response.Status.OK,"text/plain","");
 
-        	return new Response(Response.Status.OK,"application/json","{data:[{filename:str,type:'f'},{filename:str,type:'d'}]}");
+        	//return new Response(Response.Status.OK,"application/json","{data:[{filename:str,type:'f'},{filename:str,type:'d'}]}");
         }
         if(session.getUri().equalsIgnoreCase("/GcFileMan/GetDir")){
         	
@@ -137,7 +142,13 @@ public class WebServer extends NanoHTTPD {
         }
 
         if(session.getUri().equalsIgnoreCase("/GcFileMan/DeleteFile")){
-        	return new Response(Response.Status.OK,"application/json","{data:[{filename:str,type:'f'},{filename:str,type:'d'}]}");
+        	System.out.println(" -----> file manager-> delete folder");
+        	Map<String,String> parms=session.getParms();
+        	String path=parms.get("path");
+        	String name=parms.get("name");
+        	System.out.println(name);
+        	publicFileManager.DeleteFile(path,name);
+        	return new Response(Response.Status.OK,"text/plain","");
         }
         
         try{

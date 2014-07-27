@@ -13,8 +13,6 @@ function getDirContent(path){
 			console.log(data);
 			var listContainer=$('#dirContent');
 			listContainer.empty();
-	
-
 			var dd=JSON.parse(data);
 			console.log(dd);
 			var list=dd.data;
@@ -22,11 +20,15 @@ function getDirContent(path){
 			var fileIcon="<span> -F- </span>";
 			for (var i = list.length - 1; i >= 0; i--) {
 				if(list[i].type=='d'){
-					var item="<li>"+dirIcon+"<button class='btn-link' onclick='openDirButtonClick("+'"'+list[i].filename+'"'+")'>"+list[i].filename+"</button>"+"</li>";
+					var folderBut="<button class='btn-link' onclick='openDirButtonClick("+'"'+list[i].filename+'"'+")'>"+list[i].filename+"</button>";
+					var delBut="<button class='but-del' onclick='deleteFile("+'"'+list[i].filename+'"'+")'>"+"x"+"</button>";
+					var item="<li>"+dirIcon+folderBut+delBut+"</li>";
 					listContainer.append(item);
 				};
 				if (list[i].type == 'f') {
-					var item="<li>"+fileIcon+list[i].filename+"</li>";	
+					var delBut="<button class='but-del' onclick='deleteFile("+'"'+list[i].filename+'"'+")'>"+"x"+"</button>";
+					
+					var item="<li>"+fileIcon+list[i].filename+delBut+"</li>";	
 					listContainer.append(item);			
 				};	
 			}
@@ -69,6 +71,8 @@ function getCurrentPath(){
 function submitFileUploadForm(oFormElement)
 {
 	var xhr = new XMLHttpRequest();
+	var path=getCurrentPath();
+	$("input[name='targetpath']").val(path);
 	xhr.onreadystatechange = function(){
 		if(this.readyState == this.DONE) {
 			//alert ("Done");
@@ -99,25 +103,27 @@ function createDirButtonClick(){
 function createDirSubmit(){
 	var content = document.getElementById("contentMain");
 	var dirNameInput=document.getElementById("dirNameInput");
-	var dirName = document.getElementById("dirNameInputBox").text;
+	var dirName = $("#dirNameInputBox").val();
+	console.log("submiting");
 	if(dirName==null||dirName.trim()==""){
+		console.log("failed");
 		return createDirCancel();
 	}
-	var xhr=new XMLHttpRequest();
-	xhr.onreadystatechange = function(){
-		if(this.readyState == this.DONE){
-			alter("Done");
 
+	var path= getCurrentPath();
+	$.ajax({
+		url:"/GcFileMan/CreateDir?path="+encodeURIComponent(path)+"&name="+dirName
+		}).done(function(data){
+			console.log(data);
+			dirNameInput.setAttribute("hidden",true);
+			content.removeAttribute("hidden");
+			refreshContent();
 
-		}else{
-			alter("Fail");
-		}
-	}
+			
+		})
+    .fail(function() { alert("error"); return;});
 
-	dirNameInputBox.setAttribute("hidden",true);
-	content.removeAttribute("hidden");
-	refreshContent();
-
+	
 }
 
 function createDirCancel(){
@@ -126,4 +132,16 @@ function createDirCancel(){
 	var dirNameInputBox=document.getElementById("dirNameInput");
 	dirNameInputBox.setAttribute("hidden",true);
 	content.removeAttribute("hidden");
+}
+function deleteFile(filename){
+	var path=getCurrentPath();
+	$.ajax({
+		url:"/GcFileMan/DeleteFile?path="+encodeURIComponent(path)+"&name="+filename
+		}).done(function(data){
+			
+			refreshContent();
+
+			
+		})
+    .fail(function() { alert("error"); return;});
 }

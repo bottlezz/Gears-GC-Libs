@@ -55,9 +55,28 @@ public class MyFileManager implements GcFileManager{
 	@Override
 	public boolean CreateDir(String subPath,String name) {
 		// TODO Auto-generated method stub
-		String path=localFolder+"/"+subPath+name;
-		new File(path).mkdir();
-		return false;
+		String path=localFolder+subPath+name;
+
+		File theDir = new File(path);
+		System.out.println(path);
+		boolean result = false;
+		if(!theDir.exists()){
+			
+			try{
+				theDir.mkdir();
+				result = true;
+			} catch(SecurityException e){
+			//handle it
+			}
+
+			if(!result){
+				System.out.println("Fail to create");	
+			}
+		}else{
+			System.out.println("Sorry, there exists a same name");	
+		}
+
+		return result;
 	}
 
 	public String GetDir(String filePath){
@@ -72,14 +91,38 @@ public class MyFileManager implements GcFileManager{
 	        	String format = "{\"filename\":\""+ fileEntry.getName() +"\",\"type\":"+"\"f\"},";
 	            JSONFile += format;
 	        }
+	        
     	}
-    	JSONFile = JSONFile.substring(0, JSONFile.length()-1); 
+		if(file.list().length>0){
+			JSONFile = JSONFile.substring(0, JSONFile.length()-1); 
+		}
+    	
     	JSONFile += "]}";
 		return JSONFile;
 	}
 	
-	public boolean DeleteFile(String Path){
-		return false;
+	public boolean DeleteFile(String subPath,String name){
+		try{
+			String path=localFolder+subPath+name;
+			System.out.println(path);
+			File index = new File(path);
+			if(index.isFile()){
+				index.delete();
+			}else{
+				String[] entries = index.list();
+				for(String s: entries){
+				   	File currentFile = new File(index.getPath(),s);
+				   	currentFile.delete();
+				}
+				index.delete();
+			}
+			
+		}catch(Exception e){
+			System.out.println("faile delete");
+			return false;
+		}
+		
+		return true;
 	}
 	
 	
