@@ -67,12 +67,25 @@ function readyButtonClick(){
 
 	var name=document.getElementById("usernameText").value;
 	myName=name;
+	//set user to server
+	connect.setUser(name);
 	nextStage();
 }
 function startButtonClick(){
-	
-	nextStage();
+	//broadcast start message
+	var dataobject={"type":"startGame"};
+    connect.broadcasting(dataobject);
 }
+
+function recievedCallBack(object){
+	console.log("recievedCallBack: "+object);
+		
+	if(object.type=="startGame"){
+		//everyone start the game
+		nextStage();
+	}
+}
+
 function voteButtonClick(){
 	var item = getSelectedListItem("voteList");
 
