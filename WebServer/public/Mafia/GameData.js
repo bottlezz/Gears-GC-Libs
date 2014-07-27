@@ -8,7 +8,7 @@ var isHost;
 var user = function(name){
 	this.name = name;
 	this.id = null;
-	this.isHost = null;
+	this.isHost = "0";
 	this.socket = null;
 	this.status = 1;
 	this.identity = 0;
@@ -66,7 +66,7 @@ function getCivilianList(){
 	var list=getPlayerList();
 	var cList = new Array();
 	for(var index in list){
-		if(list[index].status==3){
+		if(list[index].identity==3){
 			cList.push(list[index]);
 		}
 	}

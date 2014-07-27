@@ -63,7 +63,9 @@ function nextTurn(){
 }
 function readyButtonClick(){
 	hideItemsByName("readyButton");
-	showItemsByName("startButton");
+
+	if(isHost=="1")
+		showItemsByName("startButton");
 
 	var name=document.getElementById("usernameText").value;
 	myName=name;
