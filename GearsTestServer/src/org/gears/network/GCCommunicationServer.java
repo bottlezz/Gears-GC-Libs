@@ -461,8 +461,8 @@ public class GCCommunicationServer extends WebSocketServer {
 		
 		
 		//OPTION2
-		//sendGcListByKey(arg0, "USERS", "#SYSTEM#");
-		//sendGcListByKey(arg0, "USERSOCKETS", "#SYSTEM#");
+		sendGcListByKey(sourceSocket, "USERS", "#SYSTEM#");
+		sendGcListByKey(sourceSocket, "USERSOCKETS", "#SYSTEM#");
 	}
 	
 	private void addUser(WebSocket sourceSocket, String data)
