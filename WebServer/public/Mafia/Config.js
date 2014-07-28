@@ -27,15 +27,23 @@ var gameStage = 0;
 var gameTurn = GAME_NIGHT ;
 var clientId;
 var isKiller=false;
-var isHost=false;
+var isHost="0";
 var connect=null;
 var isReady=false;
 var inGame=false;
 var myname;
 
+var user = function(name, id){
+	this.username = name;
+	this.id = id;
+	this.isHost = "0";
+	this.socket = null;
+	this.status = 1;
+	this.identity = 0;
+}
 //will let host broadcast userlist;
 
-
+var myUser={username:null,id:null,status:1,identity:0};
 
 function S4() {
    return (((1+Math.random())*0x10000)|0).toString(16).substring(1);
@@ -43,7 +51,7 @@ function S4() {
 function guid() {
    return (S4()+S4()+"-"+S4()+"-"+S4()+"-"+S4()+"-"+S4()+S4()+S4());
 }
-var myUser={username:null,id:null,status:1,identity:0};
+
 var UserList; //global Userlist
 var playerList=new Array(); //gameplayer list
 var voteList=new Array();

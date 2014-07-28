@@ -1,6 +1,3 @@
-var mocklist=[{name:"Greg",id:"1",status:1,identity:1},
-{name:"Luna",id:"2",status:0,identity:0},
-{name:"Effie",id:"3",status:0,identity:0}];
 function getPlayerList(){
 	return playerList;
 }
@@ -56,15 +53,36 @@ function MarkUserDeadById(cid){
 	}
 		
 }
-function receivedUserlist(list){
+function receivedUserlist(receivedMessage){
 
-	UserList = list;
-	console.log("receivedUserlist:"+JSON.stringify(list));
+	var body = receivedMessage.body;
+	body = body.split("#SYSTEM#");
+
+	var variables = JSON.parse(receivedMessage.variables);
+
+	if(variables.key == "USERSOCKETS"){
+		for(var i=0; i<body.length; i++){
+			UserList[i].socket = body[i];
+		}
+	}
+	else if(variables.key == "USERS"){
+		UserList = [];
+		for(var i=0; i<body.length; i++){
+			var name = body[i].split("#USERID#")[0];
+			var id = body[i].split("#USERID#")[1];
+			var currentUser = new user(name, id);
+			UserList.push(currentUser);
+		}
+		return;
+	}
+
+	UserList[0].isHost = "1";
+
 	//setHost
 	for (var i = UserList.length - 1; i >= 0; i--) {
-		var id=UserList[i].name;
+		var id=UserList[i].id;
 		if(UserList[i].isHost=="1" && id==clientId){
-			isHost=true;
+			isHost="1";
 			showItemsByName("startButton");
 		}
 	};
@@ -144,7 +162,7 @@ function recievedCallBack(object){
 	if(object.type == "gameStart"){
 		console.log("Game start");
 
-		if(!isHost){
+		if(isHost=="0"){
 			
 
 			updatePlayerList(object.value);

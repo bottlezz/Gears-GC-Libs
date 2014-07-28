@@ -68,12 +68,12 @@ function readyButtonClick(){
 
 	var name=document.getElementById("usernameText").value;
 	myUser.username=name;
-	connect.setUser(myUser.id, JSON.stringify(myUser));
+	connect.setUser(name,myUser.id);
 	nextStage();
 	processGame();
 }
 function startButtonClick(){
-	if(isHost){
+	if(isHost=="1"){
 		setPlayerlist();
 		broadcastPlayerList();
 		//broadcastUsersIdentity();
