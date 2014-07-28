@@ -2,9 +2,7 @@ package info.gearsgc.webserver;
 
 
 import fi.iki.elonen.NanoHTTPD;
-import fi.iki.elonen.WebServerPlugin;
 
-import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.HashMap;
@@ -69,9 +67,10 @@ public class WebServer extends NanoHTTPD {
         super(8080);
 
     }
-    public WebServer(int port,GcFileManager fileMan){
+    public WebServer(int port,GcFileManager fileMan,GcAssetManager assetMan){
         super(port);
         publicFileManager=fileMan;
+        assetManager = assetMan;
         //this.setTempFileManagerFactory(new defaultTempFileManagerFactory());
 
     }
@@ -121,51 +120,71 @@ public class WebServer extends NanoHTTPD {
        
         String mimeType=getMimeTypeForFile(session.getUri());
         InputStream data=null;
+        System.out.println("say:"+session.getUri().substring(2));
+        if(session.getUri().toLowerCase().startsWith("/filemanager")){
+        	try{
+                data = assetManager.open(session.getUri().substring(1));
+            }catch (IOException e){
+                //e.printStackTrace();
+                //data = null;
+                //return new Response(Response.Status.OK,mimeType,data);
+            }
 
-        
-        if(session.getUri().equalsIgnoreCase("/GcFileMan/CreateDir")){
-        	System.out.println(" -----> file manager-> create folder");
-        	Map<String,String> parms=session.getParms();
-        	String path=parms.get("path");
-        	String name=parms.get("name");
-        	System.out.println(name);
-        	publicFileManager.CreateDir(path,name);
-        	return new Response(Response.Status.OK,"text/plain","");
+            if (mimeType== MIME_DEFAULT_BINARY ){
+                return new Response(sb.toString());
+            }else {
+                
+            	return new Response(Response.Status.OK,mimeType,data);
+                
+            }
+        }else{
+        	 if(session.getUri().equalsIgnoreCase("/GcFileMan/CreateDir")){
+             	System.out.println(" -----> file manager-> create folder");
+             	Map<String,String> parms=session.getParms();
+             	String path=parms.get("path");
+             	String name=parms.get("name");
+             	System.out.println(name);
+             	publicFileManager.CreateDir(path,name);
+             	return new Response(Response.Status.OK,"text/plain","");
 
-        	//return new Response(Response.Status.OK,"application/json","{data:[{filename:str,type:'f'},{filename:str,type:'d'}]}");
-        }
-        if(session.getUri().equalsIgnoreCase("/GcFileMan/GetDir")){
+             	//return new Response(Response.Status.OK,"application/json","{data:[{filename:str,type:'f'},{filename:str,type:'d'}]}");
+             }
+             if(session.getUri().equalsIgnoreCase("/GcFileMan/GetDir")){
+             	
+             	String path=session.getParms().get("path");
+             	String rep=publicFileManager.GetDir(path);
+             	return new Response(Response.Status.OK,"text/plain",rep);
+             }
+
+             if(session.getUri().equalsIgnoreCase("/GcFileMan/DeleteFile")){
+             	System.out.println(" -----> file manager-> delete folder");
+             	Map<String,String> parms=session.getParms();
+             	String path=parms.get("path");
+             	String name=parms.get("name");
+             	System.out.println(name);
+             	publicFileManager.DeleteFile(path,name);
+             	return new Response(Response.Status.OK,"text/plain","");
+             }
+             
+             try{
+                 data = publicFileManager.open(session.getUri().substring(1));
+             }catch (IOException e){
+                 //e.printStackTrace();
+                 //data = null;
+                 //return new Response(Response.Status.OK,mimeType,data);
+             }
+
+             if (mimeType== MIME_DEFAULT_BINARY ){
+                 return new Response(sb.toString());
+             }else {
+                 
+             	return new Response(Response.Status.OK,mimeType,data);
+                 
+             }
         	
-        	String path=session.getParms().get("path");
-        	String rep=publicFileManager.GetDir(path);
-        	return new Response(Response.Status.OK,"text/plain",rep);
-        }
-
-        if(session.getUri().equalsIgnoreCase("/GcFileMan/DeleteFile")){
-        	System.out.println(" -----> file manager-> delete folder");
-        	Map<String,String> parms=session.getParms();
-        	String path=parms.get("path");
-        	String name=parms.get("name");
-        	System.out.println(name);
-        	publicFileManager.DeleteFile(path,name);
-        	return new Response(Response.Status.OK,"text/plain","");
         }
         
-        try{
-            data = publicFileManager.open(session.getUri().substring(1));
-        }catch (IOException e){
-            //e.printStackTrace();
-            //data = null;
-            //return new Response(Response.Status.OK,mimeType,data);
-        }
-
-        if (mimeType== MIME_DEFAULT_BINARY ){
-            return new Response(sb.toString());
-        }else {
-            
-        	return new Response(Response.Status.OK,mimeType,data);
-            
-        }
+       
 
         //
     }
