@@ -1,5 +1,7 @@
 package fi.iki.elonen;
 
+import info.gearsgc.webserver.GcFileManager;
+
 import java.io.*;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
@@ -102,6 +104,11 @@ public abstract class NanoHTTPD {
     private TempFileManagerFactory tempFileManagerFactory;
 
     /**
+     * Plugged by Greg, used to handle file upload.
+     */
+    private GcFileManager uploadFileManager;
+    
+    /**
      * Constructs an HTTP server on given port.
      */
     public NanoHTTPD(int port) {
@@ -116,6 +123,11 @@ public abstract class NanoHTTPD {
         this.myPort = port;
         setTempFileManagerFactory(new DefaultTempFileManagerFactory());
         setAsyncRunner(new DefaultAsyncRunner());
+    }
+    
+    public NanoHTTPD(int port,GcFileManager fileMan){
+    	this(null,port);
+    	uploadFileManager=fileMan;
     }
 
     private static final void safeClose(Closeable closeable) {
@@ -1148,17 +1160,11 @@ public abstract class NanoHTTPD {
                             }
                             int offset = stripMultipartHeaders(fbuf, bpositions[boundarycount - 2]);
                            
-                            String rootPath="public";
                             String targetPath=parms.get("targetpath");
-                            String dirPath=rootPath+targetPath;
-                            System.out.println(dirPath);
-                            //String dirPath=rootPath;
                             String curFileName=disposition.get("filename");
-                            
-                            curFileName=curFileName.substring(1, curFileName.length() - 1);
-                            String curFilePath = dirPath+curFileName;
-                            System.out.println(curFilePath);
-                            String path = saveUploadFile(fbuf, offset, bpositions[boundarycount - 1] - offset - 4,curFilePath);
+                            curFileName=curFileName.substring(1, curFileName.length() - 1);                 
+                            String path=uploadFileManager.CreateFile(fbuf, offset, bpositions[boundarycount - 1] - offset - 4,targetPath,curFileName);
+                            //String path = saveUploadFile(fbuf, offset, bpositions[boundarycount - 1] - offset - 4,curFilePath);
                             files.put(pname, path);
                             value = disposition.get("filename");
                             value = value.substring(1, value.length() - 1);

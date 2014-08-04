@@ -68,7 +68,7 @@ public class WebServer extends NanoHTTPD {
 
     }
     public WebServer(int port,GcFileManager fileMan,GcAssetManager assetMan){
-        super(port);
+        super(port,fileMan);
         publicFileManager=fileMan;
         assetManager = assetMan;
         //this.setTempFileManagerFactory(new defaultTempFileManagerFactory());

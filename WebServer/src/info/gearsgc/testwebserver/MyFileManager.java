@@ -3,8 +3,11 @@ package info.gearsgc.testwebserver;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.ByteBuffer;
+import java.nio.channels.FileChannel;
 import java.util.*;
 
 import info.gearsgc.webserver.GcFileManager;
@@ -124,6 +127,31 @@ public class MyFileManager implements GcFileManager{
 		
 		return true;
 	}
+	@Override
+	public String CreateFile(ByteBuffer b, int offset, int len,String subPath, String name) {
+		String filePath=localFolder+subPath+name;
+		if (len > 0) {
+            FileOutputStream fileOutputStream = null;
+            try {
+              
+                ByteBuffer src = b.duplicate();
+                fileOutputStream = new FileOutputStream(filePath);
+                FileChannel dest = fileOutputStream.getChannel();
+                src.position(offset).limit(offset + len);
+                dest.write(src.slice());
+                fileOutputStream.close();
+                
+              
+            } catch (Exception e) { // Catch exception if any
+                throw new Error(e); // we won't recover, so throw an error
+            }
+        }
+        return filePath;
+	}
+
+
+	
+	
 	
 	
 	
