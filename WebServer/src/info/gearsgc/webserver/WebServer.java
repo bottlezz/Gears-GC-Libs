@@ -62,6 +62,8 @@ public class WebServer extends NanoHTTPD {
     //private final boolean quiet=false;
     protected static GcFileManager publicFileManager;
     protected static GcAssetManager assetManager;
+    protected static GcUrlRouter urlRouter;
+    
     public WebServer(){
 
         super(8080);
@@ -72,8 +74,13 @@ public class WebServer extends NanoHTTPD {
         publicFileManager=fileMan;
         assetManager = assetMan;
         //this.setTempFileManagerFactory(new defaultTempFileManagerFactory());
+        urlRouter= new DefaultUrlRouter();
 
     }
+    public void RegisterRouter(GcUrlRouter router){
+    	urlRouter = router;
+    }
+
     public StringBuilder ShowRequestInfo(IHTTPSession session){
     	  Map<String, List<String>> decodedQueryParameters =
                   decodeParameters(session.getQueryParameterString());
@@ -118,27 +125,46 @@ public class WebServer extends NanoHTTPD {
 
         StringBuilder sb = ShowRequestInfo(session);
        
-        String mimeType=getMimeTypeForFile(session.getUri());
+        //String mimeType=getMimeTypeForFile(session.getUri());
         InputStream data=null;
-        System.out.println("say:"+session.getUri().substring(2));
-        if(session.getUri().toLowerCase().startsWith("/filemanager")){
-        	try{
-                data = assetManager.open(session.getUri().substring(1));
-            }catch (IOException e){
-                //e.printStackTrace();
-                //data = null;
-                //return new Response(Response.Status.OK,mimeType,data);
-            }
+        //System.out.println("say:"+session.getUri().substring(2));
+        String rawReqUri=session.getUri();
+        String reqUri=urlRouter.RoutePath(rawReqUri);
+        String mimeType=getMimeTypeForFile(reqUri);
+        //System.out.println("pathis:"+reqUri);
+        List<String> appList=urlRouter.AssetAppList();
+        for(String app: appList){
+        	String pathStart='/'+app;
+        	if(reqUri.toLowerCase().startsWith(pathStart)){
+        		if(reqUri.toLowerCase().endsWith(app)){
+        			String uri=reqUri+'/';
+        			Response res = new Response(Response.Status.REDIRECT, NanoHTTPD.MIME_HTML, "<html><body>Redirected: <a href=\"" +uri + "\">" + uri + "</a></body></html>");
+    	            res.addHeader("Location", uri);
+    	            return res;
 
-            if (mimeType== MIME_DEFAULT_BINARY ){
-                return new Response(sb.toString());
-            }else {
-                
-            	return new Response(Response.Status.OK,mimeType,data);
-                
-            }
-        }else{
-        	 if(session.getUri().equalsIgnoreCase("/GcFileMan/CreateDir")){
+        		}
+        		try{
+        			data = assetManager.open(reqUri.substring(1));
+                }catch (IOException e){
+                    //e.printStackTrace();
+                    //data = null;
+                    return new Response(Response.Status.INTERNAL_ERROR,mimeType,data);
+                }
+        
+                if (mimeType== MIME_DEFAULT_BINARY ){
+                    return new Response(sb.toString());
+                }else {
+                    
+                	return new Response(Response.Status.OK,mimeType,data);
+                    
+                }
+        	}
+        }
+        if(reqUri.startsWith("/GcFileMan")){
+        	/**
+        	 * Ajax handler for file upload
+        	 */
+        	if(reqUri.equalsIgnoreCase("/GcFileMan/CreateDir")){
              	System.out.println(" -----> file manager-> create folder");
              	Map<String,String> parms=session.getParms();
              	String path=parms.get("path");
@@ -149,14 +175,14 @@ public class WebServer extends NanoHTTPD {
 
              	//return new Response(Response.Status.OK,"application/json","{data:[{filename:str,type:'f'},{filename:str,type:'d'}]}");
              }
-             if(session.getUri().equalsIgnoreCase("/GcFileMan/GetDir")){
+             if(reqUri.equalsIgnoreCase("/GcFileMan/GetDir")){
              	
              	String path=session.getParms().get("path");
              	String rep=publicFileManager.GetDir(path);
              	return new Response(Response.Status.OK,"text/plain",rep);
              }
 
-             if(session.getUri().equalsIgnoreCase("/GcFileMan/DeleteFile")){
+             if(reqUri.equalsIgnoreCase("/GcFileMan/DeleteFile")){
              	System.out.println(" -----> file manager-> delete folder");
              	Map<String,String> parms=session.getParms();
              	String path=parms.get("path");
@@ -165,28 +191,30 @@ public class WebServer extends NanoHTTPD {
              	publicFileManager.DeleteFile(path,name);
              	return new Response(Response.Status.OK,"text/plain","");
              }
-             
-             try{
-                 data = publicFileManager.open(session.getUri().substring(1));
-             }catch (IOException e){
-                 //e.printStackTrace();
-                 //data = null;
-                 //return new Response(Response.Status.OK,mimeType,data);
-             }
-
-             if (mimeType== MIME_DEFAULT_BINARY ){
-                 return new Response(sb.toString());
-             }else {
-                 
-             	return new Response(Response.Status.OK,mimeType,data);
-                 
-             }
-        	
         }
         
-       
+    	/**
+    	 *  request for external apps
+    	 */
+    	try{
+            data = publicFileManager.open(reqUri.substring(1));
+        }catch (IOException e){
+            //e.printStackTrace();
+            data = null;
+            return new Response(Response.Status.NOT_FOUND,mimeType,data);
+            
+        }
 
-        //
+        if (mimeType== MIME_DEFAULT_BINARY ){
+            return new Response(sb.toString());
+        }else {
+            
+        	return new Response(Response.Status.OK,mimeType,data);
+            
+        }
+        	
+        
+
     }
     private String getMimeTypeForFile(String uri) {
         int dot = uri.lastIndexOf('.');
@@ -267,4 +295,30 @@ public class WebServer extends NanoHTTPD {
         }
     }
 
+    private class DefaultUrlRouter implements GcUrlRouter{
+    	
+		@Override
+		public String RoutePath(String path) {
+			String lowerPath=path.toLowerCase();
+
+			List<String> apps=AssetAppList();
+			for(String app : apps){
+				if(lowerPath.endsWith(app+'/')){
+					path+="index.html";
+				}
+			}
+			return path;
+		}
+
+		@Override
+		public List<String> AssetAppList() {
+			List<String> apps= new ArrayList<String>();
+			apps.add("whois");
+			apps.add("filemanager");
+		    
+			return apps;
+		}
+    	
+    }
+    
 }
