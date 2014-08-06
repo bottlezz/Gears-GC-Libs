@@ -36,7 +36,8 @@ public class MyAssetManager implements GcAssetManager {
 	    
 	    } catch (FileNotFoundException e) {
 	        // TODO Auto-generated catch block
-	        e.printStackTrace();
+	       // e.printStackTrace();
+	        throw(e);
 	    }
 	    System.out.println(fileName);
 	    return is;

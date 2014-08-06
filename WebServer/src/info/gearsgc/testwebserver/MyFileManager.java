@@ -38,7 +38,8 @@ public class MyFileManager implements GcFileManager{
 	    
 	    } catch (FileNotFoundException e) {
 	        // TODO Auto-generated catch block
-	        e.printStackTrace();
+	        //e.printStackTrace();
+	        throw(e);
 	    }
 	    System.out.println(fileName);
 	    return is;
