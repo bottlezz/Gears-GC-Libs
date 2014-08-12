@@ -135,8 +135,8 @@ public class WebServer extends NanoHTTPD {
         List<String> appList=urlRouter.AssetAppList();
         for(String app: appList){
         	String pathStart='/'+app;
-        	if(reqUri.toLowerCase().startsWith(pathStart)){
-        		if(reqUri.toLowerCase().endsWith(app)){
+        	if(reqUri.startsWith(pathStart)){
+        		if(reqUri.endsWith(app)){
         			String uri=reqUri+'/';
         			Response res = new Response(Response.Status.REDIRECT, NanoHTTPD.MIME_HTML, "<html><body>Redirected: <a href=\"" +uri + "\">" + uri + "</a></body></html>");
     	            res.addHeader("Location", uri);
@@ -299,11 +299,11 @@ public class WebServer extends NanoHTTPD {
     	
 		@Override
 		public String RoutePath(String path) {
-			String lowerPath=path.toLowerCase();
+		
 
 			List<String> apps=AssetAppList();
 			for(String app : apps){
-				if(lowerPath.endsWith(app+'/')){
+				if(path.endsWith(app+'/')){
 					path+="index.html";
 				}
 			}
@@ -314,7 +314,7 @@ public class WebServer extends NanoHTTPD {
 		public List<String> AssetAppList() {
 			List<String> apps= new ArrayList<String>();
 			apps.add("whois");
-			apps.add("filemanager");
+			apps.add("fileManager");
 		    
 			return apps;
 		}
