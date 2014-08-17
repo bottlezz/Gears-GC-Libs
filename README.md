@@ -1,6 +1,7 @@
-Gears-GC-TestServer
+Gears-GC-Libs
 ===================
 
 This is the test server
 
-WebServer is Http server. while GearsPCServer is the web socket server
+WebServer is Http server. 
+GearsPCServer is the web socket server
