@@ -102,8 +102,13 @@ function GameCenter() {
 		console.log("SENT");
 	}
 
+
 	this.broadcasting = function(body) {
 		sendMessage("broadcasting", "message", body);
+	}
+
+	this.create_list = function(body) {
+		sendMessage("create_list",{"key":"UserProperty", "autoSync":"true"}, [{user:1},{user:2}]);
 	}
 
 	var PROPERTY_SEPERATOR = "#PROPERTY#";

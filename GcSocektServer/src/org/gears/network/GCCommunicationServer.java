@@ -11,6 +11,7 @@ import java.util.Iterator;
 import java.util.TimeZone;
 
 import org.gears.DataObject;
+import org.gears.DataParser;
 import org.java_websocket.WebSocket;
 import org.java_websocket.handshake.ClientHandshake;
 import org.java_websocket.server.WebSocketServer;
@@ -120,6 +121,7 @@ public class GCCommunicationServer extends WebSocketServer {
 //		this.removeUser(sourceSocket);
 //		if(true)
 //			return;
+		DataParser.parseData(data);
 		
 		DataObject obj = new DataObject();
 		obj.parseJson(data);
@@ -326,6 +328,7 @@ public class GCCommunicationServer extends WebSocketServer {
 		if(gcLists.containsKey(key)){
 			value = gcLists.get(key);
 		}
+		
 		
 		String body = arrayToJson(value, separator);
 		
