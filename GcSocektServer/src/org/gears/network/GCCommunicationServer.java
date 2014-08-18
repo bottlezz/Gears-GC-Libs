@@ -67,7 +67,7 @@ public class GCCommunicationServer extends WebSocketServer {
 	
 	public GCCommunicationServer( int port ) throws UnknownHostException {
 		super( new InetSocketAddress( port ) );
-		this.initialize();
+		//this.initialize();
 	}
 
 	public GCCommunicationServer( InetSocketAddress address ) {
