@@ -8,6 +8,7 @@ import com.google.gson.annotations.Expose;
 
 public class DataObject 
 {
+	public JsonObject dataObj;
 	@Expose
 	protected String action;
 	
@@ -22,11 +23,7 @@ public class DataObject
 	@Expose
 	protected String body;
 	
-	//@Expose
-	//protected int userID;
-	
-	//@Expose
-	//protected String name;
+
 	
 	
 	
@@ -119,6 +116,7 @@ public class DataObject
 		{
 			//json = "{\"action\":\"broadcasting\", \"variables\":\"test\", \"timestamp\":\"null\", \"body\":\"testing\"}";
 			JsonObject obj = gson.fromJson(json, JsonObject.class);
+			
 			this.action = obj.get("action").isJsonNull() ? null: obj.get("action").getAsString();
 			this.timestamp = obj.get("timestamp").isJsonNull() ? null : obj.get("timestamp").getAsString();
 			//temp = obj.get("userID").isJsonNull() ? null : obj.get("userID").getAsString();
