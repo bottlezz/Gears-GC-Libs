@@ -124,11 +124,43 @@ public class WebServer extends NanoHTTPD {
                 decodeParameters(session.getQueryParameterString());
 
         StringBuilder sb = ShowRequestInfo(session);
-       
-        //String mimeType=getMimeTypeForFile(session.getUri());
+        
         InputStream data=null;
-        //System.out.println("say:"+session.getUri().substring(2));
         String rawReqUri=session.getUri();
+        
+        //File manager request should be pioritized than normal ones
+        if(rawReqUri.startsWith("/GcFileMan")){
+        	/**
+        	 * Ajax handler for file upload
+        	 */
+        	if(rawReqUri.equalsIgnoreCase("/GcFileMan/CreateDir")){
+             	System.out.println(" -----> file manager-> create folder");
+             	Map<String,String> parms=session.getParms();
+             	String path=parms.get("path");
+             	String name=parms.get("name");
+             	System.out.println(name);
+             	publicFileManager.CreateDir(path,name);
+             	return new Response(Response.Status.OK,"text/plain","");
+
+             	//return new Response(Response.Status.OK,"application/json","{data:[{filename:str,type:'f'},{filename:str,type:'d'}]}");
+             }
+             if(rawReqUri.equalsIgnoreCase("/GcFileMan/GetDir")){
+             	
+             	String path=session.getParms().get("path");
+             	String rep=publicFileManager.GetDir(path);
+             	return new Response(Response.Status.OK,"text/plain",rep);
+             }
+
+             if(rawReqUri.equalsIgnoreCase("/GcFileMan/DeleteFile")){
+             	System.out.println(" -----> file manager-> delete folder");
+             	Map<String,String> parms=session.getParms();
+             	String path=parms.get("path");
+             	String name=parms.get("name");
+             	System.out.println(name);
+             	publicFileManager.DeleteFile(path,name);
+             	return new Response(Response.Status.OK,"text/plain","");
+             }
+        }
         String reqUri=urlRouter.RoutePath(rawReqUri);
         String mimeType=getMimeTypeForFile(reqUri);
         //System.out.println("pathis:"+reqUri);
@@ -160,38 +192,7 @@ public class WebServer extends NanoHTTPD {
                 }
         	}
         }
-        if(reqUri.startsWith("/GcFileMan")){
-        	/**
-        	 * Ajax handler for file upload
-        	 */
-        	if(reqUri.equalsIgnoreCase("/GcFileMan/CreateDir")){
-             	System.out.println(" -----> file manager-> create folder");
-             	Map<String,String> parms=session.getParms();
-             	String path=parms.get("path");
-             	String name=parms.get("name");
-             	System.out.println(name);
-             	publicFileManager.CreateDir(path,name);
-             	return new Response(Response.Status.OK,"text/plain","");
-
-             	//return new Response(Response.Status.OK,"application/json","{data:[{filename:str,type:'f'},{filename:str,type:'d'}]}");
-             }
-             if(reqUri.equalsIgnoreCase("/GcFileMan/GetDir")){
-             	
-             	String path=session.getParms().get("path");
-             	String rep=publicFileManager.GetDir(path);
-             	return new Response(Response.Status.OK,"text/plain",rep);
-             }
-
-             if(reqUri.equalsIgnoreCase("/GcFileMan/DeleteFile")){
-             	System.out.println(" -----> file manager-> delete folder");
-             	Map<String,String> parms=session.getParms();
-             	String path=parms.get("path");
-             	String name=parms.get("name");
-             	System.out.println(name);
-             	publicFileManager.DeleteFile(path,name);
-             	return new Response(Response.Status.OK,"text/plain","");
-             }
-        }
+        
         
     	/**
     	 *  request for external apps
