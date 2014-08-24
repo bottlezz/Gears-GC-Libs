@@ -128,6 +128,7 @@ public class GCCommunicationServer extends WebSocketServer {
 		
 		DataObject obj = new DataObject();
 		obj.parseJson(data);
+		obj.setAction(obj.getAction().toLowerCase());
 //		System.out.println(data);
 //		System.out.println(obj);
 //		System.out.println(obj.getBody());
