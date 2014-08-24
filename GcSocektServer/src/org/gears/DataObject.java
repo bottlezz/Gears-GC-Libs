@@ -14,8 +14,6 @@ public class DataObject
 	@Expose
 	protected String variables;
 	
-	protected JsonObject variablesJson;
-	
 	@Expose
 	protected String timestamp;
 	
@@ -40,32 +38,8 @@ public class DataObject
 		return timestamp;
 	}
 	
-	public String getVariablesAsString(){
+	public String getVariables(){
 		return variables;
-	}
-	
-	public JsonObject getVariablesAsJson(){
-		return this.variablesJson;
-	}
-	
-	public String getVariableKey(){
-		JsonObject json = getVariablesAsJson();
-		return json.get("key").isJsonNull() ? null : json.get("key").getAsString();
-	}
-	
-	public String getVariableAutoSync(){
-		JsonObject json = getVariablesAsJson();
-		return json.get("autoSync").isJsonNull() ? null : json.get("autoSync").getAsString();
-	}
-	
-	public String getVariableSeparator(){
-		JsonObject json = getVariablesAsJson();
-		return json.get("separator").isJsonNull() ? null : json.get("separator").getAsString();
-	}
-	
-	public String getVariableIndex(){
-		JsonObject json = getVariablesAsJson();
-		return json.get("index").isJsonNull() ? null : json.get("index").getAsString();
 	}
 	
 //	public int getUserID() 
@@ -121,20 +95,8 @@ public class DataObject
 			JsonObject obj = gson.fromJson(json, JsonObject.class);
 			this.action = obj.get("action").isJsonNull() ? null: obj.get("action").getAsString();
 			this.timestamp = obj.get("timestamp").isJsonNull() ? null : obj.get("timestamp").getAsString();
-			//temp = obj.get("userID").isJsonNull() ? null : obj.get("userID").getAsString();
-			//this.userID = temp == null ? -1 : Integer.parseInt(temp);
-			//this.name = obj.get("name").isJsonNull() ? null : obj.get("name").getAsString();
 			this.body = obj.get("body").isJsonNull() ? null : obj.get("body").getAsString();
-			
-			if (obj.get("variables").isJsonObject())
-			{
-				this.variablesJson = obj.get("variables").isJsonNull()? null : obj.get("variables").getAsJsonObject();
-				this.variables = variablesJson.toString();
-			}
-			else{
-				this.variables = obj.get("variables").isJsonNull()? null : obj.get("variables").getAsString();
-				this.variablesJson = null;
-			}
+			this.variables = obj.get("variables").isJsonNull() ? null : obj.get("variables").getAsString();
 		}
 		catch(JsonSyntaxException jse)
 		{
@@ -145,7 +107,6 @@ public class DataObject
 			//this.userID = -1;
 			this.variables = null;
 			this.body = null;
-			this.variablesJson = null;
 		}
 		catch(Exception e){
 			e.printStackTrace();

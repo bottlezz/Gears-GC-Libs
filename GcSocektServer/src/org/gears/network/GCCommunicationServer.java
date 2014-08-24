@@ -16,6 +16,7 @@ import org.java_websocket.handshake.ClientHandshake;
 import org.java_websocket.server.WebSocketServer;
 
 import com.google.gson.Gson;
+import com.google.gson.JsonObject;
 
 /*
  * test data
@@ -66,6 +67,8 @@ public class GCCommunicationServer extends WebSocketServer {
 	//private HashMap<WebSocket, GCUser> userList;
 	private HashMap<String, String> gcObjects;
 	private HashMap<String, ArrayList<String>> gcLists;
+	
+	private Gson gson = new Gson();
 	
 	public GCCommunicationServer( int port ) throws UnknownHostException {
 		super( new InetSocketAddress( port ) );
@@ -178,13 +181,15 @@ public class GCCommunicationServer extends WebSocketServer {
 	public void addListItem(WebSocket sourceSocket, String data){
 		DataObject obj = new DataObject();
 		obj.parseJson(data);
-		String key = obj.getVariableKey();
+		
+		JsonObject jsonVar = gson.fromJson(obj.getVariables(), JsonObject.class);
+		String key = jsonVar.get("key").getAsString();
 		String body = obj.getBody();
-		int index = Integer.parseInt(obj.getVariableIndex());
+		int index = Integer.parseInt(jsonVar.get("index").getAsString());
 		
 		gcLists.get(key).add(index, body);
 		
-		if(obj.getVariableAutoSync().equals("true")){
+		if(jsonVar.get("autoSync").getAsString().equals("true")){
 			this.broadcast(sourceSocket, data, false);
 		}
 	}
@@ -192,13 +197,15 @@ public class GCCommunicationServer extends WebSocketServer {
 	public void replaceListItemByIndex(WebSocket sourceSocket, String data){
 		DataObject obj = new DataObject();
 		obj.parseJson(data);
-		String key = obj.getVariableKey();
+		
+		JsonObject jsonVar = gson.fromJson(obj.getVariables(), JsonObject.class);
+		String key = jsonVar.get("key").getAsString();
 		String body = obj.getBody();
-		int index = Integer.parseInt(obj.getVariableIndex());
+		int index = Integer.parseInt(jsonVar.get("index").getAsString());
 		
 		gcLists.get(key).set(index, body);
 		
-		if(obj.getVariableAutoSync().equals("true")){
+		if(jsonVar.get("autoSync").getAsString().equals("true")){
 			this.broadcast(sourceSocket, data, false);
 		}
 	}
@@ -206,13 +213,14 @@ public class GCCommunicationServer extends WebSocketServer {
 	public void removeListItemByIndex(WebSocket sourceSocket, String data){
 		DataObject obj = new DataObject();
 		obj.parseJson(data);
-		String key = obj.getVariableKey();
+		JsonObject jsonVar = gson.fromJson(obj.getVariables(), JsonObject.class);
+		String key = jsonVar.get("key").getAsString();
 		String body = obj.getBody();
-		int index = Integer.parseInt(obj.getVariableIndex());
+		int index = Integer.parseInt(jsonVar.get("index").getAsString());
 		
 		gcLists.get(key).remove(index);
 		
-		if(obj.getVariableAutoSync().equals("true")){
+		if(jsonVar.get("autoSync").getAsString().equals("true")){
 			this.broadcast(sourceSocket, data, false);
 		}
 	}
@@ -220,12 +228,13 @@ public class GCCommunicationServer extends WebSocketServer {
 	public void removeListItem(WebSocket sourceSocket, String data){
 		DataObject obj = new DataObject();
 		obj.parseJson(data);
-		String key = obj.getVariableKey();
+		JsonObject jsonVar = gson.fromJson(obj.getVariables(), JsonObject.class);
+		String key = jsonVar.get("key").getAsString();
 		String body = obj.getBody();
 		
 		gcLists.get(key).remove(body);
 		
-		if(obj.getVariableAutoSync().equals("true")){
+		if(jsonVar.get("autoSync").getAsString().equals("true")){
 			this.broadcast(sourceSocket, data, false);
 		}
 	}
@@ -233,7 +242,8 @@ public class GCCommunicationServer extends WebSocketServer {
 	public void getItemIndex(WebSocket sourceSocket, String data){
 		DataObject obj = new DataObject();
 		obj.parseJson(data);
-		String key = obj.getVariableKey();
+		JsonObject jsonVar = gson.fromJson(obj.getVariables(), JsonObject.class);
+		String key = jsonVar.get("key").getAsString();
 		String body = obj.getBody();
 		
 		int index = gcLists.get(key).indexOf(body);
@@ -245,7 +255,8 @@ public class GCCommunicationServer extends WebSocketServer {
 		DataObject obj = new DataObject();
 		obj.parseJson(data);
 		
-		String key = obj.getVariableKey();
+		JsonObject jsonVar = gson.fromJson(obj.getVariables(), JsonObject.class);
+		String key = jsonVar.get("key").getAsString();
 		String body = obj.getBody();
 		
 		ArrayList<String> value = gcLists.get(key);
@@ -255,7 +266,7 @@ public class GCCommunicationServer extends WebSocketServer {
 		
 		//TODO
 		// sent out msg
-		if(obj.getVariableAutoSync().equals("true")){
+		if(jsonVar.get("autoSync").getAsString().equals("true")){
 			this.broadcast(sourceSocket, data, false);
 		}
 	}
@@ -293,7 +304,8 @@ public class GCCommunicationServer extends WebSocketServer {
 		obj.parseJson(data);
 		
 		//String separator = obj.getVariableSeparator();
-		String key = obj.getVariableKey();
+		JsonObject jsonVar = gson.fromJson(obj.getVariables(), JsonObject.class);
+		String key = jsonVar.get("key").getAsString();
 		sendGcListByKey(sourceSocket, key);
 	}
 	
@@ -301,7 +313,8 @@ public class GCCommunicationServer extends WebSocketServer {
 		DataObject obj = new DataObject();
 		obj.parseJson(data);
 		
-		String key = obj.getVariableKey();
+		JsonObject jsonVar = gson.fromJson(obj.getVariables(), JsonObject.class);
+		String key = jsonVar.get("key").getAsString();
 		String body = obj.getBody();
 		int index = Integer.parseInt(body);
 		
@@ -348,7 +361,8 @@ public class GCCommunicationServer extends WebSocketServer {
 		DataObject obj = new DataObject();
 		obj.parseJson(data);
 		
-		String key = obj.getVariableKey();
+		JsonObject jsonVar = gson.fromJson(obj.getVariables(), JsonObject.class);
+		String key = jsonVar.get("key").getAsString();
 		
 		if(gcLists.containsKey(key))
 			return;
@@ -356,7 +370,7 @@ public class GCCommunicationServer extends WebSocketServer {
 		
 		//TODO
 		// sent out msg
-		if(obj.getVariableAutoSync().equals("true")){
+		if(jsonVar.get("autoSync").getAsString().equals("true")){
 			this.broadcast(sourceSocket, data, false);
 		}
 	}
@@ -365,7 +379,8 @@ public class GCCommunicationServer extends WebSocketServer {
 		DataObject obj = new DataObject();
 		obj.parseJson(data);
 		
-		String key = obj.getVariableKey();
+		JsonObject jsonVar = gson.fromJson(obj.getVariables(), JsonObject.class);
+		String key = jsonVar.get("key").getAsString();
 		sendGcObjectsByKey(sourceSocket, key);
 	}
 	
@@ -391,12 +406,13 @@ public class GCCommunicationServer extends WebSocketServer {
 		DataObject obj = new DataObject();
 		obj.parseJson(data);
 		
-		String key = obj.getVariableKey();
+		JsonObject jsonVar = gson.fromJson(obj.getVariables(), JsonObject.class);
+		String key = jsonVar.get("key").getAsString();
 		String value = obj.getBody();
 		
 		gcObjects.put(key, value);
 		
-		if(obj.getVariableAutoSync().equals("true")){
+		if(jsonVar.get("autoSync").getAsString().equals("true")){
 			//broadcast
 			// TODO
 			// broadcast data, not the origin data
