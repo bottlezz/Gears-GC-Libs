@@ -201,22 +201,25 @@ var user = function(name, property){
 }
 
 function receivedUserlist(receivedMessage){
-	var body = receivedMessage.body;
+	var body = JSON.parse(receivedMessage.body);
 	console.log("receivedUserlist:"+body);
-	body = body.split("#SYSTEM#");
 
 	var variables = JSON.parse(receivedMessage.variables);
 
 	if(variables.key == "USERSOCKETS"){
 		for(var i=0; i<body.length; i++){
-			UserList[i].socket = body[i];
+			try{
+				UserList[i].socket = JSON.parse(body[i]);
+			} catch (e) {
+				UserList[i].socket = body[i];
+			}
 		}
 	}
 	else if(variables.key == "USERS"){
 		UserList = [];
 		for(var i=0; i<body.length; i++){
-			var currentBody = body[i].split("#PROPERTY#");
-			var currentUser = new user(currentBody[0], currentBody[1]);
+			var currentBody = JSON.parse(body[i]);
+			var currentUser = new user(currentBody.name, currentBody.property);
 			UserList.push(currentUser);
 		}
 		return;
@@ -312,7 +315,13 @@ function setGameOn(){
 function recievedCallBack(object){
 	console.log("recievedCallBack: "+object);
 		//var dataobject={type:"updateLocation",userid:myid,location:Mylocation,time:null,actions:realTimeActions(CurrentPath)};
+		try{
+			object = JSON.parse(object);
+		} catch (e){
+			//do nothing
+		}
 		
+
 		if(object.type=="startGame"){
 			//everyone start the game
 			if(state!=GAME_READY){

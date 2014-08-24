@@ -15,6 +15,8 @@ import org.java_websocket.WebSocket;
 import org.java_websocket.handshake.ClientHandshake;
 import org.java_websocket.server.WebSocketServer;
 
+import com.google.gson.Gson;
+
 /*
  * test data
  * 
@@ -290,9 +292,9 @@ public class GCCommunicationServer extends WebSocketServer {
 		DataObject obj = new DataObject();
 		obj.parseJson(data);
 		
-		String separator = obj.getVariableSeparator();
+		//String separator = obj.getVariableSeparator();
 		String key = obj.getVariableKey();
-		sendGcListByKey(sourceSocket, key, separator);
+		sendGcListByKey(sourceSocket, key);
 	}
 	
 	public void sendGcListItem(WebSocket sourceSocket, String data){
@@ -321,18 +323,19 @@ public class GCCommunicationServer extends WebSocketServer {
 		this.broadcast(sourceSocket, objBack.getJson(), false);
 	}
 	
-	private void sendGcListByKey(WebSocket sourceSocket, String key, String separator){
+	private void sendGcListByKey(WebSocket sourceSocket, String key){
 		ArrayList<String> value = null;
 		if(gcLists.containsKey(key)){
 			value = gcLists.get(key);
 		}
 		
-		String body = arrayToJson(value, separator);
+		//String body = arrayToJson(value, separator);
+		String body = new Gson().toJson(value);
 		
 		DataObject objBack = new DataObject();
 		objBack.setBody(body);
 		objBack.setAction("SYNC_LIST");
-		String variables = "{\"key\":\""+key+"\",\"separator\":\""+separator+"\"}";
+		String variables = "{\"key\":\""+key+"\"}";
 		objBack.setVariables(variables);
 		SimpleDateFormat f = new SimpleDateFormat("yyyy-MMM-dd HH:mm:ss");
 		f.setTimeZone(TimeZone.getTimeZone("UTC"));
@@ -461,8 +464,8 @@ public class GCCommunicationServer extends WebSocketServer {
 		
 		
 		//OPTION2
-		sendGcListByKey(sourceSocket, "USERS", "#SYSTEM#");
-		sendGcListByKey(sourceSocket, "USERSOCKETS", "#SYSTEM#");
+		sendGcListByKey(sourceSocket, "USERS");
+		sendGcListByKey(sourceSocket, "USERSOCKETS");
 	}
 	
 	private void addUser(WebSocket sourceSocket, String data)
@@ -513,8 +516,8 @@ public class GCCommunicationServer extends WebSocketServer {
 		// TODO
 		// may need change
 		//this.updateHost();
-		sendGcListByKey(sourceSocket, "USERS", "#SYSTEM#");
-		sendGcListByKey(sourceSocket, "USERSOCKETS", "#SYSTEM#");
+		sendGcListByKey(sourceSocket, "USERS");
+		sendGcListByKey(sourceSocket, "USERSOCKETS");
 	}
 	
 //	private void updateHost()

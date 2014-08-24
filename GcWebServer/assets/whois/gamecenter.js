@@ -86,6 +86,13 @@ function GameCenter() {
 
 	var sendMessage = function(action, variables, body) {
 		var timestamp = new Date();
+		if(typeof variables != 'string'){
+			variables = JSON.stringify(variables);
+		}
+		if(typeof body != 'string'){
+			body = JSON.stringify(body);
+		}
+		
 
 		var message = {
 			"action": action,
@@ -106,13 +113,11 @@ function GameCenter() {
 		sendMessage("broadcasting", "message", body);
 	}
 
-	var PROPERTY_SEPERATOR = "#PROPERTY#";
-
 	var alreadySet = "0";
 	this.setUser = function(name, property) {
 
-		sendMessage("set_user", "", name+PROPERTY_SEPERATOR+property);
-		sendMessage("create_list",'{"key":"UserProperty", "autoSync":"true"}',"");
+		sendMessage("set_user", {}, {"name":name, "property":property});
+		sendMessage("create_list",{"key":"UserProperty", "autoSync":"true"},{});
 	}
 
 }
