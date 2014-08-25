@@ -107,6 +107,7 @@ public class DataObject
 			//this.userID = -1;
 			this.variables = null;
 			this.body = null;
+			jse.printStackTrace();
 		}
 		catch(Exception e){
 			e.printStackTrace();
@@ -123,6 +124,7 @@ public class DataObject
 		}
 		catch(JsonSyntaxException jse)
 		{
+			jse.printStackTrace();
 			return null;
 		}
 	}

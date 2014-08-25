@@ -156,7 +156,7 @@ public class GCCommunicationServer extends WebSocketServer {
 		else if (obj.getAction().equals("get_list")){
 			this.sendGcList(sourceSocket, data);
 		}
-		else if (obj.getAction().equals("append_list_item")){
+		else if (obj.getAction().equals("push_list_item")){
 			this.appendGcList(sourceSocket, data);
 		}
 		else if (obj.getAction().equals("get_list_item")){
