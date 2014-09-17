@@ -8,7 +8,7 @@ public class GCMain
 	{
 		try
 		{
-			GCCommunicationServer server = new GCCommunicationServer(8081);
+			GCCommunicationServer server = new GCCommunicationServer(50000);
 			server.start();
 		}
 		catch (Exception e)

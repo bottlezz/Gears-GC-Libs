@@ -112,10 +112,10 @@ public class GCCommunicationServer extends WebSocketServer {
 	@Override
 	public void onMessage(WebSocket sourceSocket, String data)
 	{
-    if(data.startsWith("{\"action\":\"broadcast\",")){
-        this.broadcast(sourceSocket, data, false);
-        return;
-      }
+	    if(data.startsWith("{\"action\":\"broadcast\",")){
+	        this.broadcast(sourceSocket, data, false);
+	        return;
+	      }
 		//TODO test
 		DataObject obj1 = new DataObject();
 //		obj1.setAction("testAction");
