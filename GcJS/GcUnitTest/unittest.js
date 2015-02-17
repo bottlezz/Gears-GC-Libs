@@ -1,1 +1,0 @@
-var connect=new GameCenter();
