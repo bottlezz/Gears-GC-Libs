@@ -6,15 +6,16 @@
 	// var recievedObject;	  // recieved json object
 
 function GameCenter(port) {
-	console.log(this);
+	//console.log(this);
 	this.wsPort= port==null?"50000":port.toString();
 	this.ip="127.0.0.1";
 	this.connected=false;
 	this.onConnect=function(){};
-
+	this.eventListener=new Array();
+	this.actionPool=new Array();
 	//to close connection connection.close();
 	this.init = function() {
-		console.log(this);
+		//console.log(this);
 		console.log("loading!");
 		//check preconditions for web socket support
 		if (window.MozWebSocket) {
@@ -36,21 +37,33 @@ function GameCenter(port) {
 		}else{
 			this.ip = matches[1];
 		}
-        
-        
         console.log("IP: " + this.ip);
+        var address="ws://" + this.ip + ":" + this.wsPort;
 
         this.GcObjectList=new Array();
 
-		this.connection = new WebSocket("ws://" + this.ip + ":" + this.wsPort);
+		this.connection = new WebSocket(address);
 		this.connection.GcLib=this;
 
 		this.connection.onopen = function(event) { this.GcLib.onConnection() };
 		this.connection.onerror = function(error) { this.GcLib.connectionError(error) };
 		this.connection.onmessage = function(message) { this.GcLib.receiveMessage(message) };
 		this.connection.onclose = function(event) { this.GcLib.onCloseEvent() };
+
+		this.actionPool.push({action:"broadcasting", callback:function(data,gcLib){
+			//body = JSON.parse(data.body);
+			gcLib.onBroadCast(data.body);
+		}});
+		this.actionPool.push({action:"SYNC", callback:function(data,gcLib){
+			var objectKey=data.variables;
+			var gcObj=gcLib.getGcObject(objectKey);
+			if(gcObj!=null){
+				console.log("not null");
+				gcObj.val(body);
+			}
+		}});
 	};
-	this.init();
+	
 
 	//connection error handling
 	this.connectionError = function(error) {
@@ -74,7 +87,7 @@ function GameCenter(port) {
 
 	this.receiveMessage = function(message) {
 		//convert JSON
-		console.log(message);
+		//console.log(message);
 
 		try {
 			var receivedMessage = JSON.parse(message.data);
@@ -110,6 +123,18 @@ function GameCenter(port) {
 			} catch(e){
 				//body = null;
 			}
+			receivedMessage.body=body;
+			receivedMessage.variables=variables;
+			console.log(receivedMessage);
+
+			for (var i = this.actionPool.length - 1; i >= 0; i--) {
+				var ac=this.actionPool[i];
+				if(ac.action==receivedMessage.action){
+					ac.callback(receivedMessage,this);
+				}
+			};
+			/*
+
 
 
 			if (receivedMessage.action == "broadcasting") {
@@ -119,16 +144,7 @@ function GameCenter(port) {
 
 			}else if(receivedMessage.action =="SYNC"){
 				var objectKey=variables;
-				/*
-				console.log(objectKey);
-				for (var i = this.GcObjectList.length - 1; i >= 0; i--) {
-					var gco = this.GcObjectList[i];
-					//console.log("GCObject:"+gco.getkey()+" "+gco.getValue()+" compare:"+gco.getkey().toString());
-					if(gco.getkey()==objectKey){
-						gco.setValue(body);
-						//gco.onUpdate(objectKey,body);
-					}
-				};*/
+	
 				var gcObj=this.getGcObject(objectKey);
 				if(gcObj!=null){
 					console.log("not null");
@@ -137,7 +153,7 @@ function GameCenter(port) {
 
 			}
 			else {
-			}
+			}*/
 
 		} catch(error) {
 			console.log('message is not a JSON object' + error);
@@ -153,12 +169,12 @@ function GameCenter(port) {
 	this.sendMessage = function(action, variables, body) {
 		//UNIX time stamp
 		var timestamp = Math.round(new Date().getTime() / 1000)
-		if(typeof variables != 'string'){
+		//if(typeof variables != 'string'){
 			variables = JSON.stringify(variables);
-		}
-		if(typeof body != 'string'){
+		//}
+		//if(typeof body != 'string'){
 			body = JSON.stringify(body);
-		}
+		//}
 
 		var message = {
 			"action": action,
@@ -246,7 +262,11 @@ function GameCenter(port) {
 	this.returnObjList=function(){
 		return this.GcObjectList;
 	}
+
+	this.init();
 }
+
+
 
 ///Modles
 function GcObject(key,gcLib){
@@ -261,6 +281,7 @@ function GcObject(key,gcLib){
 		this.key=key;
 	}
 	
+	//this.
 	this.onRegsiter=null;
 	this.onSync = null;
 
@@ -313,3 +334,4 @@ function GcList(key,callBack){
 	}
 
 }
+
