@@ -264,9 +264,28 @@ function GameCenter(port) {
 	}
 
 	this.init();
-}
+};
 
+function GcSocket(gcLib){
+	this.gcService = gcLib;
+	this.wsPort= "50000";
+	this.ip="127.0.0.1";
+	this.connection = null;
+	this.connected=false;
+	this.init=function(port, ip){
+		if(port!=null)this.wsPort = port;
+		if(ip!=null) this.ip= ip;
+		this.connection = new WebSocket(address);
+		this.connection.gcLib=gcLib;
+		this.connection.onopen = function(event) { this.gcLib.onConnection(); };
+		this.connection.onerror = function(error) { this.gcLib.connectionError(error) };
+		this.connection.onmessage = function(message) { this.gcLib.receiveMessage(message) };
+		this.connection.onclose = function(event) { this.gcLib.onCloseEvent() };
+	}
+};
+function GcData(){
 
+};
 
 ///Modles
 function GcObject(key,gcLib){
